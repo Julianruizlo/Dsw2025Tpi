@@ -4,24 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dsw2025Tpi.Domain.Entities
+namespace Dsw2025Tpi.Domain.Entities;
+
+public class Customer
 {
-    public class Customer
+    public Customer(string? email, string? name, string? phoneNumber)
     {
-        public Customer(string? email, string? name, string? phoneNumber)
-        {
-            Email = email;
-            Name = name;
-            PhoneNumber = phoneNumber;
-            
-        }
-
-        public string? Email { get; set; }
-        public string? Name { get; set; }
-        public string? PhoneNumber { get; set; }
-
-
-        public ICollection<Order>? Orders { get; set; }
-
+        Email = email;
+        Name = name;
+        PhoneNumber = phoneNumber;
+        
     }
+
+    public string? Email { get; set; }
+    public string? Name { get; set; }
+    public string? PhoneNumber { get; set; }
+
+
+    public ICollection<Order>? Orders { get; set; }
+
 }

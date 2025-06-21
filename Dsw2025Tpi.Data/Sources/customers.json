@@ -1,0 +1,37 @@
+[
+    {
+        "name": "Sofia Ramirez",
+        "email": "sofia.ramirez@example.com",
+        "phone": "+54 9 11 5678 4321"
+    },
+    {
+        "name": "Tomas Castillo",
+        "email": "tomas.aguirre@example.com",
+        "phoneNumber": "+54 9 261 445 8899"
+    },
+    {
+        "name": "Camila Lopez",
+        "email": "camila.lopez@example.com",
+        "phoneNumber": "+54 9 379 123 4567"
+    },
+    {
+        "name": "Mariano Garcia",
+        "email": "mariano.garcia@example.com",
+        "phoneNumber": "+54 11 2345-6789"
+    },
+    {
+        "name": "Miguel Merentiel",
+        "email": "migue.merentielBcJrs@example.com",
+        "phoneNumber": "+54 9 351 123-4567"
+    },
+    {
+        "name": "Ana Rodriguez",
+        "email": "ana.rodriguez@example.com",
+        "phoneNumber": "+54 261 987-6543"
+    },
+    {
+        "name": "Lucas Fernandez",
+        "email": "lucas.fernandez@example.com",
+        "phoneNumber": "+54 11 1122-3344"
+    }
+]
