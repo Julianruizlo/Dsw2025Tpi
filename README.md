@@ -3,8 +3,8 @@
 
 ## Integrantes:
 
-Dini Domijan Francisco, 56897
-Malica Matiussi Luciano Agustín, 58099
+Dini Domijan Francisco, 56897-
+Malica Matiussi Luciano Agustín, 58099-
 Ruiz López Julián, 58089
 
 ### Backend
