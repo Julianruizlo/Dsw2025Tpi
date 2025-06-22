@@ -1,5 +1,6 @@
-﻿using Dsw2025Ej15.Application.Exceptions;
-using Dsw2025Tpi.Application.Dtos;
+﻿using Dsw2025Tpi.Application.Dtos;
+using Dsw2025Tpi.Application.Exceptions;
+using Dsw2025Tpi.Data.Repositories;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
 using System;
@@ -54,5 +55,79 @@ namespace Dsw2025Tpi.Application.Services
             return new ProductModel.Response(product.Id, product.Sku, product.InternalCode, product.Name, product.Description,
                 product.CurrentUnitPrice, product.StockQuantity, product.IsActive);
         }
+        //Como actualizar un producto por id y no por sku, en caso de que lo hagamos por sku, habria que arreglar la ultima parte para que no actualice el id cada vez que haya cambios
+        public async Task<ProductModel.Response> UpdateProduct(Guid id, ProductModel.Request request)
+        {
+            var exist = await _repository.GetById<Product>(id);
+            if (exist == null)
+                throw new EntityNotFoundException($"No se encontró un producto con el ID: {id}");
+
+            if (string.IsNullOrWhiteSpace(request.Sku) ||
+                string.IsNullOrWhiteSpace(request.InternalCode) ||
+                string.IsNullOrWhiteSpace(request.Name) ||
+                string.IsNullOrWhiteSpace(request.Description) ||
+                request.CurrentUnitPrice <= 0 ||
+                request.StockQuantity < 0)
+            {
+                throw new ArgumentException("Valores para el producto no válidos");
+            }
+
+            // Actualiza solo las propiedades necesarias, el Id no se toca
+            exist.Sku = request.Sku;
+            exist.InternalCode = request.InternalCode;
+            exist.Name = request.Name;
+            exist.Description = request.Description;
+            exist.CurrentUnitPrice = request.CurrentUnitPrice;
+            exist.StockQuantity = request.StockQuantity;
+            exist.IsActive = request.IsActive;
+
+            await _repository.Update(exist);
+
+            return new ProductModel.Response
+           (
+                exist.Id,
+                exist.Sku,
+                exist.InternalCode,
+                exist.Name,
+                exist.Description,
+                exist.CurrentUnitPrice,
+                exist.StockQuantity,
+                exist.IsActive
+            );
+        }
+
+        public async Task<ProductModel.Response> PatchProduct(Guid id,ProductModel.Request request)
+        {
+            var exist = await _repository.GetById<Product>(id);
+            if (exist == null)
+                throw new EntityNotFoundException($"No se encontró un producto con el ID: {id}");
+
+            if (string.IsNullOrWhiteSpace(request.Sku) || string.IsNullOrWhiteSpace(request.InternalCode) ||
+                string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Description) ||
+                request.CurrentUnitPrice <= 0 || request.StockQuantity < 0 ||
+                !request.IsActive
+                )
+            {
+
+                throw new ArgumentException("Valores para el producto no válidos");
+            }
+
+            var product = new Product(request.Sku, request.InternalCode, request.Name, request.Description, request.CurrentUnitPrice, request.StockQuantity, request.IsActive);
+            product.IsActive = false;
+            await _repository.Update(product);
+
+            return new ProductModel.Response(
+                product.Id,
+                product.Sku,
+                product.InternalCode,
+                product.Name,
+                product.Description,
+                product.CurrentUnitPrice,
+                product.StockQuantity,
+                product.IsActive
+            );
+        }
+
+
     }
 }

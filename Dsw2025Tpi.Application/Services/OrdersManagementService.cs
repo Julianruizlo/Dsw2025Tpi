@@ -1,4 +1,4 @@
-﻿using Dsw2025Ej15.Application.Exceptions;
+﻿using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
@@ -13,6 +13,7 @@ namespace Dsw2025Tpi.Application.Services
     public class OrdersManagementService
     {
         private readonly IRepository _repository;
+        
 
         public OrdersManagementService(IRepository repository)
         {
@@ -35,7 +36,7 @@ namespace Dsw2025Tpi.Application.Services
                 o.CustomerId));
         }
 
-        // Hay que ver como podemos validar la fecha o si hace falta
+        // Hay que ver como podemos validar la fecha o si hace falta, ademas de como verificar que haya suficiente stock al momento de crear la orden y restar la cantidad de los  producto solicitado al stock de los prodcutos
 
         public async Task<OrderModel.Response> AddOrder(OrderModel.Request request)
         {
@@ -47,11 +48,33 @@ namespace Dsw2025Tpi.Application.Services
                 throw new ArgumentException("Valores para el producto no válidos");
             }
 
-
             var exist = await _repository.First<Order>(o => o.Date == request.Date);
             var order = new Order(request.Date, request.ShippingAddres, request.BillingAddress, request.Notes, request.CustomerId);
             await _repository.Add(order);
+
             return new OrderModel.Response(order.Id, order.Date, order.ShippingAddres, order.BillingAddress, order.Notes, order.CustomerId);
         }
     }
 }
+
+/*
+if (request.CustomerId == Guid.Empty)
+            {
+                throw new ArgumentException("Valores para el producto no válidos");
+            }
+
+            // Verificar stock de cada producto en la orden
+            foreach (var item in request.Items) // Asumiendo que Items es la lista de productos y cantidades
+            {
+                var product = await _repository.GetById<Product>(item.ProductId, nameof(Product));
+                if (product == null)
+                    throw new ArgumentException($"Producto con ID {item.ProductId} no encontrado");
+
+                if (product.StockQuantity < item.Quantity)
+                    throw new InvalidOperationException($"No hay suficiente stock para el producto {product.Name}");
+            }
+
+            var order = new Order(request.Date, request.ShippingAddres, request.BillingAddress, request.Notes, request.CustomerId);
+            await _repository.Add(order);
+            return new OrderModel.Response(order.Id, order.Date, order.ShippingAddres, order.BillingAddress, order.Notes, order.CustomerId);
+*/
