@@ -9,7 +9,7 @@ namespace Dsw2025Tpi.Domain.Entities;
 
 public class Product : EntityBase
 {
-    public Product(string sku, string internalCode, string name, string description, decimal currentUnitPrice, int stockQuantity, bool isAtive)
+    public Product(string sku, string internalCode, string name, string description, decimal currentUnitPrice, int stockQuantity, bool isActive)
     {
         Sku = sku;
         InternalCode = internalCode;
@@ -17,12 +17,12 @@ public class Product : EntityBase
         Description = description;
         CurrentUnitPrice = currentUnitPrice;
         StockQuantity = stockQuantity;
-        IsAtive = isAtive;
+        IsActive = isActive;
     }
-    public required string Sku { get; set; }
-    public string? InternalCode { get; set; }
-    public required string Name { get; set; }
-    public string? Description { get; set; }
+    public string Sku { get; set; }
+    public string InternalCode { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
     public decimal CurrentUnitPrice
     {
         get => CurrentUnitPrice;
@@ -41,7 +41,7 @@ public class Product : EntityBase
                 throw new ArgumentException("La cantidad de stock no puede ser negativa.");
         }
     }
-    public bool IsAtive { get; set; }
+    public bool IsActive { get; set; }
 
 
 

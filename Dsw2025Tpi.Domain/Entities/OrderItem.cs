@@ -15,8 +15,28 @@ public class OrderItem: EntityBase
         Quantity = quantity;
         UnitPrice = unitPrice;
     }
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
+    public int Quantity 
+    { get => Quantity;
+        set
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException("La cantidad debe ser mayor a 0");
+            }
+        } 
+     }
+    public decimal UnitPrice 
+    { get => UnitPrice;
+        set
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException("El precio unitario debe ser mayor a 0");
+            }
+        }
+     }
+
+    // public int SubTotal => _items.Sum(i => i.Subtotal);
 
     public Guid OrderId { get; set; }
     public Order? Order { get; set; }
