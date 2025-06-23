@@ -12,23 +12,44 @@ namespace Dsw2025Tpi.Data.Repositories
 {
     public class InMemory : IRepository
     {
-        private List<Product>? _products;
-        private List<Order>? _orders;
-        private List<Customer>? _customers;
-        private List<OrderItem>? _orderItems;
-
+        private List<Product> _products = new();
+        private List<Customer> _customers = new();
+    
         public InMemory()
         {
             LoadProducts();
+            LoadCustumer();
         }
 
         private void LoadProducts()
         {
-            var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sources\\products.json"));
-            _products = JsonSerializer.Deserialize<List<Product>>(json, new JsonSerializerOptions
+            var jsonPath = Path.Combine(AppContext.BaseDirectory, "Sources\\products.json");
+            if (File.Exists(jsonPath))
             {
-                PropertyNameCaseInsensitive = true,
-            });
+                var json = File.ReadAllText(jsonPath);
+                var list = JsonSerializer.Deserialize<List<Product>>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                });
+                if (list != null) _products.AddRange(list);
+
+            }
+        }
+        private void LoadCustumer()
+        {
+            var jsonPath =Path.Combine(AppContext.BaseDirectory, "Sources\\customers.json");
+            if(File.Exists(jsonPath))
+            {
+                var json = File.ReadAllText(jsonPath);
+                var list = JsonSerializer.Deserialize<List<Customer>>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                });
+                if (list != null) _customers.AddRange(list);
+
+            }
+
+           
         }
 
         private List<T>? GetList<T>() where T : EntityBase
