@@ -14,6 +14,7 @@ public class OrderItem: EntityBase
         OrderId = orderId;
         Quantity = quantity;
         UnitPrice = unitPrice;
+        Subtotal = quantity * unitPrice;
     }
     public int Quantity 
     { get => Quantity;
@@ -35,12 +36,23 @@ public class OrderItem: EntityBase
             }
         }
      }
-
-    // public int SubTotal => _items.Sum(i => i.Subtotal);
+    public decimal Subtotal
+    {
+        get => Subtotal;
+        private set
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException("El subtotal debe ser mayor a 0");
+            }
+        }
+    }
+    
 
     public Guid OrderId { get; set; }
     public Order? Order { get; set; }
 
     public Guid ProductId { get; set; }
     public Product? Product { get; set; }
+
 }

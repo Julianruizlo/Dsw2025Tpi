@@ -15,7 +15,9 @@ public class Order: EntityBase
         ShippingAddres = shippingAddres;
         BillingAddress = billingAddress;
         Notes = notes;
+        TotalAmount = OrderItems.Sum(p => p.Subtotal);
         Status = OrderStatus.PENDING;
+        
     }
 
     public void ChangeStatus(OrderStatus newStatus)
@@ -27,14 +29,12 @@ public class Order: EntityBase
     public string? ShippingAddres { get; set; }
     public string? BillingAddress { get; set; }
     public string? Notes { get; set; }
-   
+    public decimal TotalAmount { get; private set; } 
 
-    //public decimal TotalAmount => _items.Sum(i => i.Subtotal);
 
     public OrderStatus Status { get; private set; }
-
     public Guid CustomerId { get; set; }
     public Customer? Customer { get; set; }
-    public ICollection<OrderItem>? OrderItems { get; set; } 
+    public ICollection<OrderItem> OrderItems { get; set; } 
 
 }
