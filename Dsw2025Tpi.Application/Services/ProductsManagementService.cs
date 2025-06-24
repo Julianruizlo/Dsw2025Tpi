@@ -113,7 +113,7 @@ namespace Dsw2025Tpi.Application.Services
             }
 
             var product = new Product(request.Sku, request.InternalCode, request.Name, request.Description, request.CurrentUnitPrice, request.StockQuantity, request.IsActive);
-            product.IsActive = false;
+            product.Toggle();
             await _repository.Update(product);
 
             return new ProductModel.Response(

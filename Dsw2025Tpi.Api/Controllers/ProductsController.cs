@@ -78,7 +78,7 @@ public class ProductsController : ControllerBase
         }
     }
 
-    [HttpPatch("{id}")]
+    [HttpPatch("{id}/TOGGLE")]
     public async Task<IActionResult> PatchProduct(Guid id, [FromBody] ProductModel.Request request)
     {
         try

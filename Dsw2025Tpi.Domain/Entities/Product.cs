@@ -19,6 +19,7 @@ public class Product : EntityBase
         StockQuantity = stockQuantity;
         IsActive = isActive;
     }
+
     public string Sku { get; set; }
     public string InternalCode { get; set; }
     public string Name { get; set; }
@@ -41,9 +42,14 @@ public class Product : EntityBase
                 throw new ArgumentException("La cantidad de stock no puede ser negativa.");
         }
     }
-    public bool IsActive { get; set; }
+    public bool IsActive { get; private set; }
 
 
 
     public ICollection<OrderItem>? Items { get; set; }
+
+    public void Toggle()
+    {
+       IsActive = !IsActive;
+    }
 }

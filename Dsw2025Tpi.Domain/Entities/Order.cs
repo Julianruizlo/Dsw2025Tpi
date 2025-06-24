@@ -15,9 +15,8 @@ public class Order: EntityBase
         ShippingAddres = shippingAddres;
         BillingAddress = billingAddress;
         Notes = notes;
-        TotalAmount = OrderItems.Sum(p => p.Subtotal);
         Status = OrderStatus.PENDING;
-        
+        OrderItems = [];
     }
 
     public void ChangeStatus(OrderStatus newStatus)
@@ -25,11 +24,22 @@ public class Order: EntityBase
         Status = newStatus;
     }
 
+    public OrderItem AddItem(Product product, int quantity)
+    {
+//        if (product.StockQuantity > quantity) ok, y tengo que descontar
+// else no tengo stock
+        var item = new OrderItem(quantity, product.CurrentUnitPrice, this.Id, product.Id);
+
+        OrderItems.Add(item);
+
+        return item;
+    }
+
     public DateTime Date { get; set; }
     public string? ShippingAddres { get; set; }
     public string? BillingAddress { get; set; }
     public string? Notes { get; set; }
-    public decimal TotalAmount { get; private set; } 
+    public decimal TotalAmount => OrderItems.Sum(p => p.Subtotal);
 
 
     public OrderStatus Status { get; private set; }

@@ -31,7 +31,7 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<IEnumerable<OrderModel.Response>?> GetOrders()
         {
             return (await _repository
-                .GetFiltered<Order>(o => o.Date == DateTime.Today, nameof(Order)))?
+                .GetFiltered<Order>(o => o.Date == DateTime.Today, nameof(OrderItem)))?
                 .Select(o => new OrderModel.Response(o.Id, o.Date, o.ShippingAddres, o.BillingAddress, o.Notes,
                 o.CustomerId));
         }
@@ -50,6 +50,16 @@ namespace Dsw2025Tpi.Application.Services
 
             var exist = await _repository.First<Order>(o => o.Date == request.Date);
             var order = new Order(request.Date, request.ShippingAddres, request.BillingAddress, request.Notes, request.CustomerId);
+            
+            List<Product> products = new List<Product>();//deberias consultar a la db todos los productos cuyos Ids esten en request.OrderItems
+
+            foreach (var item in request.Items)
+            {
+                var prod = products.Find(o => o.Id == item.ProductId);
+                var orderItem = order.AddItem(prod, item.Quantity);            
+
+            }
+
             await _repository.Add(order);
 
             return new OrderModel.Response(order.Id, order.Date, order.ShippingAddres, order.BillingAddress, order.Notes, order.CustomerId);

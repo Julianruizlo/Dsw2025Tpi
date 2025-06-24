@@ -14,8 +14,8 @@ public class OrderItem: EntityBase
         OrderId = orderId;
         Quantity = quantity;
         UnitPrice = unitPrice;
-        Subtotal = quantity * unitPrice;
     }
+
     public int Quantity 
     { get => Quantity;
         set
@@ -36,18 +36,7 @@ public class OrderItem: EntityBase
             }
         }
      }
-    public decimal Subtotal
-    {
-        get => Subtotal;
-        private set
-        {
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException("El subtotal debe ser mayor a 0");
-            }
-        }
-    }
-    
+    public decimal Subtotal => Quantity * UnitPrice;
 
     public Guid OrderId { get; set; }
     public Order? Order { get; set; }
