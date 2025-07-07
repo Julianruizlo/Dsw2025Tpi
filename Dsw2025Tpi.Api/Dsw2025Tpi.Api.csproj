@@ -19,4 +19,9 @@
     <ProjectReference Include="..\Dsw2025Tpi.Data\Dsw2025Tpi.Data.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Content Include="Sources\*.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 </Project>

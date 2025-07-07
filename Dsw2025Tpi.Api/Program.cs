@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.DataProtection.Repositories;
-using Dsw2025Tpi.Data.Repositories;
-using Dsw2025Tpi.Domain.Interfaces;
-using Dsw2025Tpi.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using Dsw2025Tpi.Api.DependencyInyection;
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dsw2025Tpi.Api;
 
@@ -14,40 +11,26 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-
+        // Configura el DbContext (ajusta el proveedor y la cadena de conexión según tu entorno)  
+        // Add services to the container.  
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddHealthChecks();
-        builder.Services.AddScoped<IRepository, EfRepository>();
-        builder.Services.AddDbContext<Dsw2025Tpi.Data.Dsw2025TpiContext>(options =>
-
-        {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DswTpiContextEntities"));
-            options.UseSeeding((c,t) =>
-            {
-                ((Dsw2025TpiContext)c).Seedwork<Product>( "Sources\\products.json");
-                ((Dsw2025TpiContext)c).Seedwork<Customer>( "Sources\\customers.json");
-                ((Dsw2025TpiContext)c).Seedwork<Order>( "Sources\\order.json");
-                ((Dsw2025TpiContext)c).Seedwork<OrderItem>( "Sources\\orderItem.json");
-
-            });
-
-    });
-
+        // Se pasa la configuración requerida al método AddDomainServices  
+        builder.Services.AddDomainServices(builder.Configuration);
 
         var app = builder.Build();
 
-        // Aplicar migraciones automáticamente al iniciar
+        // Ejecuta migraciones y seed de datos al iniciar la app  
         using (var scope = app.Services.CreateScope())
         {
-            var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025Tpi.Data.Dsw2025TpiContext>();
-            dbContext.Database.Migrate();
+            var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
+            dbContext.Database.Migrate(); // Aplica migraciones pendientes  
+            dbContext.SeedDatabase();     // Carga los datos desde los JSON  
         }
 
-        // Configure the HTTP request pipeline.
+        // Configure the HTTP request pipeline.  
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -59,7 +42,6 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers();
-
         app.MapHealthChecks("/healthcheck");
 
         app.Run();
