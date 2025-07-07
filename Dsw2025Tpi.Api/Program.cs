@@ -38,7 +38,14 @@ public class Program
     });
 
 
-    var app = builder.Build();
+        var app = builder.Build();
+
+        // Aplicar migraciones automáticamente al iniciar
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025Tpi.Data.Dsw2025TpiContext>();
+            dbContext.Database.Migrate();
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -52,7 +59,7 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers();
-        
+
         app.MapHealthChecks("/healthcheck");
 
         app.Run();

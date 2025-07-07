@@ -45,3 +45,10 @@ public class OrderItem: EntityBase
     public Product? Product { get; set; }
 
 }
+
+
+// No store type was specified for the decimal property 'UnitPrice' on entity type 'OrderItem'.
+// This will cause values to be silently truncated if they do not fit in the default precision and scale.
+// Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType',
+// specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+

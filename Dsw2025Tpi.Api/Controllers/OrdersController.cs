@@ -18,16 +18,16 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet()]
-    public async Task<IActionResult> GetOrders()
+    public async Task<IActionResult> GetAllOrders()
     {
-        var orders = await _service.GetOrders();
+        var orders = await _service.GetAllOrders();
         if (orders == null || !orders.Any()) return NoContent();
         return Ok(orders);
     }
 
     [HttpPost]
 
-     public async Task<IActionResult> AddOrder([FromBody]OrderModel.Request request)
+     public async Task<IActionResult> AddOrder([FromBody]OrderModel.RequestOrderModel request)
     {
         try
         {
@@ -47,6 +47,14 @@ public class OrdersController : ControllerBase
             return Problem("Se produjo un error al guardar el producto");
         }
     }
+
+    [HttpGet("{id:guid}")]
+    public Task<IActionResult> GetOrderById(Guid id)
+    {
+        return Task.FromResult<IActionResult>(Ok());
+    }
+
+
 
 }
 

@@ -31,6 +31,7 @@ public class Product : EntityBase
         {
             if (value <= 0)
                 throw new ArgumentException("El precio debe ser mayor a 0.");
+            CurrentUnitPrice = value;
         }
     }
     public int StockQuantity
@@ -40,9 +41,10 @@ public class Product : EntityBase
         {
             if (value < 0)
                 throw new ArgumentException("La cantidad de stock no puede ser negativa.");
+            StockQuantity= value;
         }
     }
-    public bool IsActive { get; private set; }
+    public bool IsActive { get; set; }
 
 
 

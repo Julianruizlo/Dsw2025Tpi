@@ -1,4 +1,5 @@
 ﻿using Dsw2025Tpi.Data;
+using Dsw2025Tpi.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Dsw2025Tpi.Data.Helpers
 {
-    public static class DbContextExtensions
+    public static class DbContextExtensions //Si no anda hacer como facundo, no usar generico...
     {
         public static void Seedwork<T>(this Dsw2025TpiContext context, string dataSource) where T : class
         {

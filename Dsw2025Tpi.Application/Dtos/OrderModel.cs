@@ -8,8 +8,8 @@ namespace Dsw2025Tpi.Application.Dtos;
 
 public record OrderModel
 {
-    public record Request( DateTime Date, string? ShippingAddres, string? BillingAddress, string? Notes, Guid CustomerId, List<OrderItemRequest> Items);
+    public record RequestOrderModel( DateTime Date, string? ShippingAddress, string? BillingAddress, string? Notes, Guid CustomerId, List<OrderItemModel.RequestOrderItemModel> Items);
     public record OrderItemRequest(Guid ProductId, int Quantity);
-    public record Response(Guid Id, DateTime Date, string? ShippingAddres, string? BillingAddress, string? Notes, Guid CustomerId);
+    public record ResponseOrderModel(Guid Id, DateTime Date, string? ShippingAddress, string? BillingAddress, string? Notes, Guid CustomerId);
 
 }

@@ -10,6 +10,14 @@ public class Dsw2025TpiContext : DbContext
     {
 
     }
+
+    //Para gestionar las tablas del Entity Framework (CRUD)
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<Customer> Customers { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -17,7 +25,7 @@ public class Dsw2025TpiContext : DbContext
         {
             eb.ToTable("Customers");
             eb.Property(c => c.Id)
-            .IsRequired();
+            .ValueGeneratedNever(); //Para que el entity framework no genere un id, osea que la bse de datos no lo genere
             eb.Property(c => c.Email)
             .HasMaxLength(320);
             eb.Property(c => c.Name)
@@ -27,9 +35,9 @@ public class Dsw2025TpiContext : DbContext
         });
         modelBuilder.Entity<Order>(eb =>
         {
-            eb.ToTable("Orders");
+            eb.ToTable("Orders");  
             eb.Property(o => o.Id)
-            .IsRequired();
+            .ValueGeneratedNever(); 
             eb.Property(o => o.Date)
             .HasMaxLength(10)
             .IsRequired();
@@ -43,18 +51,20 @@ public class Dsw2025TpiContext : DbContext
         modelBuilder.Entity<OrderItem>(eb =>
         {
             eb.ToTable("OrderItems");
-            eb.Property(oi => oi.Id) 
-            .IsRequired();
+            eb.Property(oi => oi.Id)
+            .ValueGeneratedNever();
             eb.Property(oi => oi.Quantity)
             .IsRequired();
             eb.Property(oi => oi.UnitPrice)
+            .HasPrecision(15, 2)
             .IsRequired();
         });
         modelBuilder.Entity<Product>(eb =>
         {
             eb.ToTable("Products");
+            //eb.HasKey(p => p.Id);
             eb.Property(p => p.Id)
-            .IsRequired();
+            .ValueGeneratedNever();
             eb.Property(p => p.Sku)
             .HasMaxLength(20)
             .IsRequired();

@@ -18,14 +18,15 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet()]
-    public async Task<IActionResult> GetProducts()
+    public async Task<IActionResult> GetAllProducts()
     {
-        var products = await _service.GetProducts();
+        var products = await _service.GetAllProducts();
         if (products == null || !products.Any()) return NoContent();
         return Ok(products);
     }
 
-    [HttpGet("{id}")]
+
+    [HttpGet("{id}")] //Revisar si conviene poner como lo pone facundo
     public async Task<IActionResult> GetProductById(Guid id)
     {
         var product = await _service.GetProductById(id);
@@ -34,12 +35,13 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost()]
-    public async Task<IActionResult> AddProduct([FromBody]ProductModel.Request request)
+    public async Task<IActionResult> AddProduct([FromBody]ProductModel.RequestProductModel request)
     {
         try
         {
             var product = await _service.AddProduct(request);
             return Ok(product);
+            // return CreatedAtAction(nameof(GetProductByIdAsync), new { id = result.Id }, result); -- Comprobar si no hay problema con ID, si hay usar esto
         }
         catch (ArgumentException ae)
         {
@@ -56,7 +58,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductModel.Request request)
+    public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductModel.RequestProductModel request)
     {
         try
         {
@@ -79,7 +81,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPatch("{id}/TOGGLE")]
-    public async Task<IActionResult> PatchProduct(Guid id, [FromBody] ProductModel.Request request)
+    public async Task<IActionResult> PatchProduct(Guid id, [FromBody] ProductModel.RequestProductModel request)
     {
         try
         {
