@@ -24,7 +24,7 @@ namespace Dsw2025Tpi.Application.Services
         }
         public async Task<OrderModel.ResponseOrderModel?> GetOrderById(Guid id)
         {
-            var order = await _repository.GetById<Order>(id, nameof(Order));
+            var order = await _repository.GetById<Order>(id, nameof(Order.OrderItems), "OrderItems.Product");
             return order != null ?
                 new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId) :
                 null;
@@ -43,6 +43,81 @@ namespace Dsw2025Tpi.Application.Services
 
         public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
         {
+            // Validación de la orden
+            OrderValidator.Validate(request);
+
+            if (request.Items == null || !request.Items.Any())
+                throw new ArgumentException("La orden debe tener al menos un item.");
+
+            // Crear la orden primero (sin items)
+            var order = new Order(
+                request.Date,
+                request.ShippingAddress,
+                request.BillingAddress,
+                request.Notes,
+                request.CustomerId
+            );
+
+            // Guardar la orden para obtener el Id (si es necesario para los OrderItem)
+            await _repository.Add(order);
+
+            var orderItems = new List<OrderItem>();
+            decimal totalAmount = 0;
+
+            foreach (var item in request.Items)
+            {
+                // Validación de existencia del producto
+                var product = await _repository.GetById<Product>(item.ProductId)
+                    ?? throw new InvalidOperationException($"Producto no encontrado: {item.ProductId}");
+
+                // Validación de stock
+                if (product.StockQuantity < item.Quantity)
+                    throw new InvalidOperationException($"Stock insuficiente para el producto: {product.Name}");
+
+                // Descuento de stock y actualización
+                product.StockQuantity -= item.Quantity;
+                await _repository.Update(product);
+
+                // Creación del OrderItem usando el constructor correcto
+                var orderItem = new OrderItem(
+                    item.Quantity,
+                    product.CurrentUnitPrice,
+                    order.Id,
+                    product.Id
+                );
+                orderItems.Add(orderItem);
+                totalAmount += product.CurrentUnitPrice * item.Quantity;
+            }
+
+            // Asignar los items a la orden y actualizar la orden
+            order.OrderItems = orderItems;
+            await _repository.Update(order);
+
+            // Mapeo de los items para la respuesta
+            var responseItems = orderItems.Select(oi => new OrderItemModel.ResponseOrderItemModel(
+                oi.Id,
+                oi.Quantity,
+                oi.UnitPrice,
+                oi.OrderId,
+                oi.ProductId
+            )).ToList();
+
+            // Retorno del modelo de respuesta
+            return new OrderModel.ResponseOrderModel(
+                order.Id,
+                order.Date,
+                order.ShippingAddress,
+                order.BillingAddress,
+                order.Notes,
+                order.CustomerId
+            );
+        }
+    }
+}
+
+/*
+public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
+        {
 
             var exist = await _repository.First<Order>(o => o.Date == request.Date);
             var order = new Order(request.Date, request.ShippingAddress, request.BillingAddress, request.Notes, request.CustomerId);
@@ -60,5 +135,4 @@ namespace Dsw2025Tpi.Application.Services
 
             return new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId);
         }
-    }
-}
+ */

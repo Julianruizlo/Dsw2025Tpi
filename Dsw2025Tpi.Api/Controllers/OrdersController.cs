@@ -1,4 +1,5 @@
-﻿using Dsw2025Tpi.Application.Dtos;
+﻿using Azure.Core;
+using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -48,10 +49,11 @@ public class OrdersController : ControllerBase
         }
     }
 
-    [HttpGet("{id:guid}")]
-    public Task<IActionResult> GetOrderById(Guid id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetOrderById( Guid id)
     {
-        return Task.FromResult<IActionResult>(Ok());
+        var order = await _service.GetOrderById(id);
+        return Ok(order);
     }
 
 
