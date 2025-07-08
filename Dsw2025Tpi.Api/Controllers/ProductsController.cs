@@ -1,6 +1,7 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
 
@@ -8,6 +9,7 @@ namespace Dsw2025Tpi.Api.Controllers;
 
 [ApiController]
 [Route("api/products")]
+[Authorize]
 public class ProductsController : ControllerBase
 {
     private readonly IProductsManagementService _service;
@@ -18,6 +20,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet()]
+    [Authorize(Roles = "Usuario")]
     public async Task<IActionResult> GetAllProducts()
     {
         var products = await _service.GetAllProducts();

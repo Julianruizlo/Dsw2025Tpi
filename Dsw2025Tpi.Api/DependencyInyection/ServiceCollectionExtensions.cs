@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
 
         // Db Context
         services.AddDbContext<Dsw2025TpiContext>(options =>
-            options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Tpi;Integrated Security=True;"));
+            options.UseSqlServer(configuration.GetConnectionString("Dsw2025Ej15Entities")));
 
         return services;
     }
