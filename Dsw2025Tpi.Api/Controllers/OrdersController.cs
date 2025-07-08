@@ -28,18 +28,18 @@ public class OrdersController : ControllerBase
 
     [HttpPost]
 
-     public async Task<IActionResult> AddOrder([FromBody]OrderModel.RequestOrderModel request)
+    public async Task<IActionResult> AddOrder([FromBody] OrderModel.RequestOrderModel request)
     {
         try
         {
             var orders = await _service.AddOrder(request);
-            return Ok(orders); 
+            return Ok(orders);
         }
         catch (ArgumentException ae)
         {
             return BadRequest(ae.Message);
         }
-        catch(ApplicationException de)
+        catch (ApplicationException de)
         {
             return Conflict(de.Message);
         }
@@ -50,13 +50,36 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetOrderById( Guid id)
+    public async Task<IActionResult> GetOrderById(Guid id)
     {
         var order = await _service.GetOrderById(id);
         return Ok(order);
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] OrderModel.RequestOrderModel request)
+    {
+        try
+        {
+            var updatedOrder = await _service.PutOrder(id, request);
+            if (updatedOrder == null) return NotFound();
+            return Ok(updatedOrder);
+        }
+        catch (ArgumentException ae)
+        {
+            return BadRequest(ae.Message);
+        }
+        catch (ApplicationException de)
+        {
+            return Conflict(de.Message);
+        }
+        catch (Exception)
+        {
+            return Problem("Se produjo un error al cambiar el estado de la orden");
+        }
 
 
+
+    }
 }
 

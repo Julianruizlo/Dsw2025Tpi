@@ -1,4 +1,5 @@
-﻿using Dsw2025Tpi.Application.Dtos;
+﻿using Azure.Core;
+using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Application.Validation;
@@ -26,7 +27,7 @@ namespace Dsw2025Tpi.Application.Services
         {
             var order = await _repository.GetById<Order>(id, nameof(Order.OrderItems), "OrderItems.Product");
             return order != null ?
-                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId) :
+                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status) :
                 null;
         }
 
@@ -36,7 +37,7 @@ namespace Dsw2025Tpi.Application.Services
             return (await _repository
                 .GetAll<Order>())?
                 .Select(o => new OrderModel.ResponseOrderModel(o.Id, o.Date, o.ShippingAddress, o.BillingAddress, o.Notes,
-                o.CustomerId));
+                o.CustomerId,o.Status));
         }
 
         // Hay que ver como podemos validar la fecha o si hace falta, ademas de como verificar que haya suficiente stock al momento de crear la orden y restar la cantidad de los  producto solicitado al stock de los prodcutos
@@ -109,7 +110,34 @@ namespace Dsw2025Tpi.Application.Services
                 order.ShippingAddress,
                 order.BillingAddress,
                 order.Notes,
-                order.CustomerId
+                order.CustomerId,
+                order.Status
+            );
+        }
+
+        public async Task<OrderModel.ResponseOrderModel> PutOrder(Guid id, OrderModel.RequestOrderModel request)
+        {
+            OrderValidator.Validate(request);
+
+            if (!Enum.IsDefined(typeof(OrderStatus), request.Status))
+            {
+                throw new ArgumentOutOfRangeException("El estado ingresado no es válido.");
+            }
+
+            var exist = await _repository.GetById<Order>(id);
+            exist.Status = request.Status;
+
+            await _repository.Update(exist);
+
+            return new OrderModel.ResponseOrderModel
+           (
+                exist.Id,
+                exist.Date,
+                exist.ShippingAddress,
+                exist.BillingAddress,
+                exist.Notes,
+                exist.CustomerId,
+                exist.Status
             );
         }
     }
