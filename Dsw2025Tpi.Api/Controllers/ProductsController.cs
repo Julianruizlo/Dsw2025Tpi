@@ -1,5 +1,5 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
-using Dsw2025Tpi.Application.Services;
+using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
@@ -10,9 +10,9 @@ namespace Dsw2025Tpi.Api.Controllers;
 [Route("api/products")]
 public class ProductsController : ControllerBase
 {
-    private readonly ProductsManagementService _service;
+    private readonly IProductsManagementService _service;
 
-    public ProductsController(ProductsManagementService service)
+    public ProductsController(IProductsManagementService service)
     {
         _service = service; 
     }
@@ -81,11 +81,11 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPatch("{id}/TOGGLE")]
-    public async Task<IActionResult> PatchProduct(Guid id, [FromBody] ProductModel.RequestProductModel request)
+    public async Task<IActionResult> PatchProduct(Guid id)
     {
         try
         {
-            var patchedProduct = await _service.PatchProduct(id, request);
+            var patchedProduct = await _service.PatchProduct(id);
             if (patchedProduct == null) return NotFound();
             return Ok(patchedProduct);
         }

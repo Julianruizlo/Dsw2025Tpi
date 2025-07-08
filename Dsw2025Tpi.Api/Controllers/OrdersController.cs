@@ -1,5 +1,5 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
-using Dsw2025Tpi.Application.Services;
+using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
@@ -10,9 +10,9 @@ namespace Dsw2025Tpi.Api.Controllers;
 [Route("api/orders")]
 public class OrdersController : ControllerBase
 {
-    private readonly OrdersManagementService _service;
+    private readonly IOrdersManagementService _service;
 
-    public OrdersController(OrdersManagementService service)
+    public OrdersController(IOrdersManagementService service)
     {
         _service = service;
     }
@@ -32,7 +32,7 @@ public class OrdersController : ControllerBase
         try
         {
             var orders = await _service.AddOrder(request);
-            return Ok(orders);
+            return Ok(orders); 
         }
         catch (ArgumentException ae)
         {
@@ -44,7 +44,7 @@ public class OrdersController : ControllerBase
         }
         catch (Exception)
         {
-            return Problem("Se produjo un error al guardar el producto");
+            return Problem("Se produjo un error al guardar la orden");
         }
     }
 

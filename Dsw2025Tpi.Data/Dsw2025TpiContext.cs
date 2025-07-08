@@ -41,7 +41,7 @@ public class Dsw2025TpiContext : DbContext
             eb.Property(o => o.Date)
             .HasMaxLength(10)
             .IsRequired();
-            eb.Property(o => o.ShippingAddres)
+            eb.Property(o => o.ShippingAddress)
             .HasMaxLength(60);
             eb.Property(o => o.BillingAddress)
             .HasPrecision(15, 2);

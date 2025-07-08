@@ -24,24 +24,27 @@ public class Product : EntityBase
     public string InternalCode { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
+
+    private decimal _currentUnitPrice;
     public decimal CurrentUnitPrice
     {
-        get => CurrentUnitPrice;
+        get => _currentUnitPrice;
         set
         {
             if (value <= 0)
                 throw new ArgumentException("El precio debe ser mayor a 0.");
-            CurrentUnitPrice = value;
+            _currentUnitPrice = value;
         }
     }
+    private int _stockQuantity;
     public int StockQuantity
     {
-        get => StockQuantity;
+        get => _stockQuantity;
         set
         {
             if (value < 0)
                 throw new ArgumentException("La cantidad de stock no puede ser negativa.");
-            StockQuantity= value;
+            _stockQuantity = value;
         }
     }
     public bool IsActive { get; set; }

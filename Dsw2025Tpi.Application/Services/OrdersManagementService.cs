@@ -1,9 +1,10 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
+using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Application.Validation;
+using Dsw2025Tpi.Data.Repositories;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
-using Dsw2025Tpi.Application.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace Dsw2025Tpi.Application.Services
         {
             var order = await _repository.GetById<Order>(id, nameof(Order));
             return order != null ?
-                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddres, order.BillingAddress, order.Notes, order.CustomerId) :
+                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId) :
                 null;
         }
 
@@ -33,8 +34,8 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<IEnumerable<OrderModel.ResponseOrderModel>?> GetAllOrders()
         {
             return (await _repository
-                .GetFiltered<Order>(o => o.Date == DateTime.Today, nameof(OrderItem)))?
-                .Select(o => new OrderModel.ResponseOrderModel(o.Id, o.Date, o.ShippingAddres, o.BillingAddress, o.Notes,
+                .GetAll<Order>())?
+                .Select(o => new OrderModel.ResponseOrderModel(o.Id, o.Date, o.ShippingAddress, o.BillingAddress, o.Notes,
                 o.CustomerId));
         }
 
@@ -47,19 +48,17 @@ namespace Dsw2025Tpi.Application.Services
             var order = new Order(request.Date, request.ShippingAddress, request.BillingAddress, request.Notes, request.CustomerId);
             OrderValidator.Validate(request);
 
-            List<Product> products = new List<Product>();//deberias consultar a la db todos los productos cuyos Ids esten en request.OrderItems
-
             foreach (var item in request.Items)
             {
-                var prod = products.Find(o => o.Id == item.ProductId);
-                var orderItem = order.AddItem(prod, item.Quantity);            
+                var prod = await _repository.GetById<Product>(item.ProductId)
+                   ?? throw new InvalidOperationException($"Producto no encontrado: {item.ProductId}");
+                var orderItem = order.AddItem(prod, item.Quantity);
 
             }
 
             await _repository.Add(order);
 
-            return new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddres, order.BillingAddress, order.Notes, order.CustomerId);
+            return new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId);
         }
     }
 }
-

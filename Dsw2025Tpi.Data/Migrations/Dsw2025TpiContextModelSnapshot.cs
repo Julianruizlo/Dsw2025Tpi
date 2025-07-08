@@ -64,7 +64,7 @@ namespace Dsw2025Tpi.Data.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
-                    b.Property<string>("ShippingAddres")
+                    b.Property<string>("ShippingAddress")
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 

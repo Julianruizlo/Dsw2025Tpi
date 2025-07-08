@@ -23,7 +23,7 @@ namespace Dsw2025Tpi.Application.Services
         }
         public async Task<ProductModel.ResponseProductModel?> GetProductById(Guid id)
         {
-            var product = await _repository.GetById<Product>(id, nameof(Product));
+            var product = await _repository.GetById<Product>(id);
             if (product == null)
                 throw new EntityNotFoundException("Producto no encontrado");
             return product != null ?
@@ -34,7 +34,7 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<IEnumerable<ProductModel.ResponseProductModel>?> GetAllProducts()
         {
             return (await _repository
-                .GetFiltered<Product>(p => p.IsActive, nameof(Product)))?
+                .GetFiltered<Product>(p => p.IsActive))?
                 .Select(p => new ProductModel.ResponseProductModel(p.Id, p.Sku, p.InternalCode, p.Name, p.Description,
                 p.CurrentUnitPrice, p.StockQuantity,p.IsActive));
         }
@@ -79,26 +79,30 @@ namespace Dsw2025Tpi.Application.Services
             );
         }
 
-        public async Task<ProductModel.ResponseProductModel> PatchProduct(Guid id,ProductModel.RequestProductModel request)
+        public async Task<ProductModel.ResponseProductModel> PatchProduct(Guid id)
         {
             var exist = await _repository.GetById<Product>(id);
-            ProductValidator.Validate(request);
             if (exist == null)
                 throw new EntityNotFoundException("Producto no encontrado.");
 
-            var product = new Product(request.Sku, request.InternalCode, request.Name, request.Description, request.CurrentUnitPrice, request.StockQuantity, request.IsActive);
-            product.Toggle();
-            await _repository.Update(product);
+            exist.IsActive = false; // O alternar: exist.IsActive = !exist.IsActive;
+            await _repository.Update(exist);
+            var active = await _repository.GetById<Product>(id);
+
+            if(active.IsActive == false)
+            {
+                throw new EntityNotFoundException("Producto no disponible");
+            }
 
             return new ProductModel.ResponseProductModel(
-                product.Id,
-                product.Sku,
-                product.InternalCode,
-                product.Name,
-                product.Description,
-                product.CurrentUnitPrice,
-                product.StockQuantity,
-                product.IsActive
+                exist.Id,
+                exist.Sku,
+                exist.InternalCode,
+                exist.Name,
+                exist.Description,
+                exist.CurrentUnitPrice,
+                exist.StockQuantity,
+                exist.IsActive
             );
         }
     }
