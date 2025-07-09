@@ -52,8 +52,13 @@ namespace Dsw2025Tpi.Application.Services
         //Como actualizar un producto por id y no por sku, en caso de que lo hagamos por sku, habria que arreglar la ultima parte para que no actualice el id cada vez que haya cambios
         public async Task<ProductModel.ResponseProductModel> UpdateProduct(Guid id, ProductModel.RequestProductModel request)
         {
-            ProductValidator.Validate(request);
+            
+            
             var exist = await _repository.GetById<Product>(id);
+            if (exist == null)
+                throw new EntityNotFoundException("Producto no encontrado");
+            ProductValidator.Validate(request);
+
 
             // Actualiza solo las propiedades necesarias, el Id no se toca
             exist.Sku = request.Sku;
@@ -88,11 +93,6 @@ namespace Dsw2025Tpi.Application.Services
             exist.IsActive = false; // O alternar: exist.IsActive = !exist.IsActive;
             await _repository.Update(exist);
             var active = await _repository.GetById<Product>(id);
-
-            if(active.IsActive == false)
-            {
-                throw new EntityNotFoundException("Producto no disponible");
-            }
 
             return new ProductModel.ResponseProductModel(
                 exist.Id,

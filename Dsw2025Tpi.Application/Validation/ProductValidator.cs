@@ -20,7 +20,7 @@ namespace Dsw2025Tpi.Application.Validation
             if (string.IsNullOrWhiteSpace(request.Description))
                 throw new BadRequestException("La descripción es obligatoria.");
 
-            if (request.CurrentUnitPrice < 0)
+            if (request.CurrentUnitPrice <= 0)
                 throw new BadRequestException("El precio debe ser un valor positivo.");
 
             if (request.StockQuantity < 0)

@@ -26,6 +26,7 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<OrderModel.ResponseOrderModel?> GetOrderById(Guid id)
         {
             var order = await _repository.GetById<Order>(id, nameof(Order.OrderItems), "OrderItems.Product");
+            if(order == null) throw new InvalidOperationException($"Orden no encontrada");
             return order != null ?
                 new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status) :
                 null;
@@ -125,6 +126,8 @@ namespace Dsw2025Tpi.Application.Services
             }
 
             var exist = await _repository.GetById<Order>(id);
+            if (exist == null)
+                throw new KeyNotFoundException($"No se encontró la orden con ID: {id}");
             exist.Status = request.Status;
 
             await _repository.Update(exist);

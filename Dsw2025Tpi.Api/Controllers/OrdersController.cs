@@ -39,6 +39,10 @@ public class OrdersController : ControllerBase
         {
             return BadRequest(ae.Message);
         }
+        catch (InvalidOperationException ioe)
+        {
+            return BadRequest(ioe.Message);
+        }
         catch (ApplicationException de)
         {
             return Conflict(de.Message);
@@ -53,8 +57,16 @@ public class OrdersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOrderById(Guid id)
     {
-        var order = await _service.GetOrderById(id);
-        return Ok(order);
+        try
+        {
+            var order = await _service.GetOrderById(id);
+            return Ok(order);
+        }
+        catch (InvalidOperationException ioe)
+        {
+            return NotFound(ioe.Message);
+        }
+        
     }
 
     [HttpPut("{id}")]
@@ -69,6 +81,10 @@ public class OrdersController : ControllerBase
         catch (ArgumentException ae)
         {
             return BadRequest(ae.Message);
+        }
+        catch (KeyNotFoundException knf)
+        {
+            return NotFound(knf.Message);
         }
         catch (ApplicationException de)
         {

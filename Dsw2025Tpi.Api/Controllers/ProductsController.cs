@@ -1,7 +1,9 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
+using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
 
@@ -9,7 +11,7 @@ namespace Dsw2025Tpi.Api.Controllers;
 
 [ApiController]
 [Route("api/products")]
-[Authorize]
+// [Authorize]
 public class ProductsController : ControllerBase
 {
     private readonly IProductsManagementService _service;
@@ -20,7 +22,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet()]
-    [Authorize(Roles = "Usuario")]
+    // [Authorize(Roles = "Usuario")]
     public async Task<IActionResult> GetAllProducts()
     {
         var products = await _service.GetAllProducts();
@@ -32,9 +34,16 @@ public class ProductsController : ControllerBase
     [HttpGet("{id}")] //Revisar si conviene poner como lo pone facundo
     public async Task<IActionResult> GetProductById(Guid id)
     {
-        var product = await _service.GetProductById(id);
-        if (product == null) return NotFound();
-        return Ok(product);
+        try 
+        {
+            var product = await _service.GetProductById(id);
+            return Ok(product);
+        }
+        catch (EntityNotFoundException nt)
+        {
+            return NotFound(nt.Message);
+        }
+        
     }
 
     [HttpPost()]
@@ -52,7 +61,7 @@ public class ProductsController : ControllerBase
         }
         catch(ApplicationException de)
         {
-            return Conflict(de.Message);
+            return BadRequest(de.Message);
         }
         catch (Exception)
         {
@@ -66,20 +75,19 @@ public class ProductsController : ControllerBase
         try
         {
             var updatedProduct = await _service.UpdateProduct(id, request);
-            if (updatedProduct == null) return NotFound();
-            return Ok(updatedProduct);
+            return Ok(updatedProduct); // ya no hace falta chequear si es null
         }
-        catch (ArgumentException ae)
+        catch (EntityNotFoundException ex) // o 
         {
-            return BadRequest(ae.Message);
+            return NotFound(ex.Message); // producto no encontrado
         }
-        catch (ApplicationException de)
+        catch (BadRequestException ae)
         {
-            return Conflict(de.Message);
+            return BadRequest(ae.Message); // errores de validación
         }
         catch (Exception)
         {
-            return Problem("Se produjo un error al actualizar el producto");
+            return Problem("Se produjo un error al actualizar el producto"); // error 500 genérico
         }
     }
 
@@ -90,7 +98,7 @@ public class ProductsController : ControllerBase
         {
             var patchedProduct = await _service.PatchProduct(id);
             if (patchedProduct == null) return NotFound();
-            return Ok(patchedProduct);
+            return NoContent();
         }
         catch (ArgumentException ae)
         {
@@ -98,7 +106,7 @@ public class ProductsController : ControllerBase
         }
         catch (ApplicationException de)
         {
-            return Conflict(de.Message);
+            return NotFound(de.Message);
         }
         catch (Exception)
         {
