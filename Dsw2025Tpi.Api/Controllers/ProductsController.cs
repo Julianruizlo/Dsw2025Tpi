@@ -52,8 +52,7 @@ public class ProductsController : ControllerBase
         try
         {
             var product = await _service.AddProduct(request);
-            return Ok(product);
-            // return CreatedAtAction(nameof(GetProductByIdAsync), new { id = result.Id }, result); -- Comprobar si no hay problema con ID, si hay usar esto
+            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product); 
         }
         catch (ArgumentException ae)
         {
