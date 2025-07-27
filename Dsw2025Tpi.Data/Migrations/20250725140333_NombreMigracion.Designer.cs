@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dsw2025Tpi.Data.Migrations
 {
     [DbContext(typeof(Dsw2025TpiContext))]
-    [Migration("20250707182801_Migrations")]
-    partial class Migrations
+    [Migration("20250725140333_NombreMigracion")]
+    partial class NombreMigracion
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,7 +67,7 @@ namespace Dsw2025Tpi.Data.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
-                    b.Property<string>("ShippingAddres")
+                    b.Property<string>("ShippingAddress")
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 

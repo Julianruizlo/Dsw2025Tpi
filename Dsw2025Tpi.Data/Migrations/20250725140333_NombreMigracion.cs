@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Dsw2025Tpi.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Migrations : Migration
+    public partial class NombreMigracion : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -49,7 +49,7 @@ namespace Dsw2025Tpi.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", maxLength: 10, nullable: false),
-                    ShippingAddres = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
+                    ShippingAddress = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
                     BillingAddress = table.Column<string>(type: "nvarchar(max)", precision: 15, scale: 2, nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),

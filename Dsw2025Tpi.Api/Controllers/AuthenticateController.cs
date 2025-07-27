@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Dsw2025Tpi.Application.Exceptions;
 
 namespace Dsw2025Ej15.Api.Controllers;
 
@@ -37,20 +38,20 @@ public class AuthenticateController : ControllerBase
         {
             return Unauthorized("Usuario o contraseña incorrectos");
         }
-
-        //var token = _jwtTokenService.GenerateToken(user.UserName,"mi_rol");
-        var token = _jwtTokenService.GenerateToken(request.Username);
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault() ?? throw new Dsw2025Tpi.Application.Exceptions.ApplicationException("User has not assigned role");
+        
+        var token = _jwtTokenService.GenerateToken(request.Username, role);
         return Ok(new { token });
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
-
-
+        
         var user = new IdentityUser { UserName = model.Username, Email = model.Email };
         var result = await _userManager.CreateAsync(user, model.Password);
-
+        var role = await _userManager.AddToRoleAsync(user, "User");
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
