@@ -23,8 +23,6 @@ public class Order: EntityBase
     {
         Status = newStatus;
     }
-
-    //Copilot hizo el codigo para comprobar y restar cuando se solicite la cantidad de un producto del stock del mismo
     public OrderItem AddItem(Product product, int quantity)
     {
         if (product == null)

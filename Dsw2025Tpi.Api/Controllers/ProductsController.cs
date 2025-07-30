@@ -31,7 +31,8 @@ public class ProductsController : ControllerBase
     }
 
 
-    [HttpGet("{id}")] //Revisar si conviene poner como lo pone facundo
+    [HttpGet("{id}")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> GetProductById(Guid id)
     {
         try 
@@ -64,7 +65,7 @@ public class ProductsController : ControllerBase
         }
         catch (Exception)
         {
-            return Problem("Se produjo un error al guardar el producto");
+            return Problem("An error occurred while saving the product");
         }
     }
 
@@ -74,29 +75,28 @@ public class ProductsController : ControllerBase
         try
         {
             var updatedProduct = await _service.UpdateProduct(id, request);
-            return Ok(updatedProduct); // ya no hace falta chequear si es null
+            return Ok(updatedProduct);
         }
-        catch (EntityNotFoundException ex) // o 
+        catch (EntityNotFoundException ex) 
         {
-            return NotFound(ex.Message); // producto no encontrado
+            return NotFound(ex.Message); 
         }
         catch (BadRequestException ae)
         {
-            return BadRequest(ae.Message); // errores de validación
+            return BadRequest(ae.Message); 
         }
         catch (Exception)
         {
-            return Problem("Se produjo un error al actualizar el producto"); // error 500 genérico
+            return Problem("An error occurred while saving the product"); 
         }
     }
 
-    [HttpPatch("{id}/TOGGLE")]
+    [HttpPatch("{id}")]
     public async Task<IActionResult> PatchProduct(Guid id)
     {
         try
         {
-            var patchedProduct = await _service.PatchProduct(id);
-            if (patchedProduct == null) return NotFound();
+            await _service.PatchProduct(id);
             return NoContent();
         }
         catch (ArgumentException ae)
@@ -109,7 +109,7 @@ public class ProductsController : ControllerBase
         }
         catch (Exception)
         {
-            return Problem("Se produjo un error al actualizar el producto");
+            return Problem("An error occurred while saving the product");
         }
 
     }

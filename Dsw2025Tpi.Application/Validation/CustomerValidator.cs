@@ -8,16 +8,16 @@ namespace Dsw2025Tpi.Application.Validation
         public static void Validate(CustomerModel.RequestCustomer request)
         {
             if (request == null)
-                throw new InvalidOperationException("El cliente no puede ser nulo.");
+                throw new InvalidOperationException("The client cannot be null.");
 
             if (string.IsNullOrWhiteSpace(request.Name))
-                throw new InvalidOperationException("El nombre es obligatorio.");
+                throw new InvalidOperationException("Name is required.");
 
             if (string.IsNullOrWhiteSpace(request.Email))
-                throw new InvalidOperationException("El email es obligatorio.");
+                throw new InvalidOperationException("Email is required.");
 
             if (string.IsNullOrWhiteSpace(request.PhoneNumber))
-                throw new InvalidOperationException("El teléfono es obligatorio.");
+                throw new InvalidOperationException("The phone number is required.");
         }
     }
 }

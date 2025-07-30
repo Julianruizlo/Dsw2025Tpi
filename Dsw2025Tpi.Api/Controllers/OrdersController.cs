@@ -33,7 +33,7 @@ public class OrdersController : ControllerBase
         try
         {
             var orders = await _service.AddOrder(request);
-            return Ok(orders);
+            return CreatedAtAction(nameof(GetOrderById), new { id = orders.Id }, orders);
         }
         catch (ArgumentException ae)
         {
@@ -49,7 +49,7 @@ public class OrdersController : ControllerBase
         }
         catch (Exception)
         {
-            return Problem("Se produjo un error al guardar la orden");
+            return Problem("An error occurred while saving the order.");
         }
     }
 
@@ -92,11 +92,8 @@ public class OrdersController : ControllerBase
         }
         catch (Exception)
         {
-            return Problem("Se produjo un error al cambiar el estado de la orden");
+            return Problem("An error occurred while changing the order status.");
         }
-
-
-
     }
 }
 

@@ -1,5 +1,5 @@
 using Dsw2025Ej15.Application.Services;
-using Dsw2025Tpi.Api.DependencyInyection;
+using Dsw2025Tpi.Api.DependencyInjection;
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,8 +19,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Configura el DbContext (ajusta el proveedor y la cadena de conexión según tu entorno)  
-        // Add services to the container.  
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(o =>
@@ -63,7 +61,7 @@ public class Program
         })
                .AddEntityFrameworkStores<AuthenticateContext>()
                .AddDefaultTokenProviders();
-        // Se pasa la configuración requerida al método AddDomainServices  
+         
         builder.Services.AddDomainServices(builder.Configuration);
         builder.Services.AddDbContext<AuthenticateContext>(options => {
             options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025Ej15Entities"));
@@ -98,12 +96,12 @@ public class Program
         var rolesToCreate = builder.Configuration.GetSection("Roles").Get<List<string>>();
 
 
-        // Ejecuta migraciones y seed de datos al iniciar la app  
+        
         using (var scope = app.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
-            dbContext.Database.Migrate(); // Aplica migraciones pendientes  
-            dbContext.SeedDatabase();     // Carga los datos desde los JSON  
+            //dbContext.Database.Migrate();  
+            dbContext.SeedDatabase();      
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             foreach (var roleName in rolesToCreate!)
@@ -115,7 +113,6 @@ public class Program
             }
         }
 
-        // Configure the HTTP request pipeline.  
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();

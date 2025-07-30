@@ -26,13 +26,12 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<OrderModel.ResponseOrderModel?> GetOrderById(Guid id)
         {
             var order = await _repository.GetById<Order>(id, nameof(Order.OrderItems), "OrderItems.Product");
-            if(order == null) throw new InvalidOperationException($"Orden no encontrada");
+            if(order == null) throw new InvalidOperationException($"Order not found");
             return order != null ?
                 new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status) :
                 null;
         }
 
-        // Solucionar aqui y ver si usamos filtro o un GetAll
         public async Task<IEnumerable<OrderModel.ResponseOrderModel>?> GetAllOrders()
         {
             return (await _repository
@@ -41,17 +40,13 @@ namespace Dsw2025Tpi.Application.Services
                 o.CustomerId,o.Status));
         }
 
-        // Hay que ver como podemos validar la fecha o si hace falta, ademas de como verificar que haya suficiente stock al momento de crear la orden y restar la cantidad de los  producto solicitado al stock de los prodcutos
-
         public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
         {
-            // Validación de la orden
             OrderValidator.Validate(request);
 
             if (request.Items == null || !request.Items.Any())
-                throw new ArgumentException("La orden debe tener al menos un item.");
+                throw new ArgumentException("The order must have at least one item.");
 
-            // Crear la orden primero (sin items)
             var order = new Order(
                 request.Date,
                 request.ShippingAddress,
@@ -60,7 +55,6 @@ namespace Dsw2025Tpi.Application.Services
                 request.CustomerId
             );
 
-            // Guardar la orden para obtener el Id (si es necesario para los OrderItem)
             await _repository.Add(order);
 
             var orderItems = new List<OrderItem>();
@@ -68,19 +62,15 @@ namespace Dsw2025Tpi.Application.Services
 
             foreach (var item in request.Items)
             {
-                // Validación de existencia del producto
                 var product = await _repository.GetById<Product>(item.ProductId)
-                    ?? throw new InvalidOperationException($"Producto no encontrado: {item.ProductId}");
+                    ?? throw new InvalidOperationException($"Product not found: {item.ProductId}");
 
-                // Validación de stock
                 if (product.StockQuantity < item.Quantity)
-                    throw new InvalidOperationException($"Stock insuficiente para el producto: {product.Name}");
+                    throw new InvalidOperationException($"Insufficient stock for product: {product.Name}");
 
-                // Descuento de stock y actualización
                 product.StockQuantity -= item.Quantity;
                 await _repository.Update(product);
 
-                // Creación del OrderItem usando el constructor correcto
                 var orderItem = new OrderItem(
                     item.Quantity,
                     product.CurrentUnitPrice,
@@ -91,11 +81,9 @@ namespace Dsw2025Tpi.Application.Services
                 totalAmount += product.CurrentUnitPrice * item.Quantity;
             }
 
-            // Asignar los items a la orden y actualizar la orden
             order.OrderItems = orderItems;
             await _repository.Update(order);
 
-            // Mapeo de los items para la respuesta
             var responseItems = orderItems.Select(oi => new OrderItemModel.ResponseOrderItemModel(
                 oi.Id,
                 oi.Quantity,
@@ -104,7 +92,6 @@ namespace Dsw2025Tpi.Application.Services
                 oi.ProductId
             )).ToList();
 
-            // Retorno del modelo de respuesta
             return new OrderModel.ResponseOrderModel(
                 order.Id,
                 order.Date,
@@ -122,12 +109,12 @@ namespace Dsw2025Tpi.Application.Services
 
             if (!Enum.IsDefined(typeof(OrderStatus), request.Status))
             {
-                throw new ArgumentOutOfRangeException("El estado ingresado no es válido.");
+                throw new ArgumentOutOfRangeException("The state entered is not valid.");
             }
 
             var exist = await _repository.GetById<Order>(id);
             if (exist == null)
-                throw new KeyNotFoundException($"No se encontró la orden con ID: {id}");
+                throw new KeyNotFoundException($"Order with ID: {id} not found");
             exist.Status = request.Status;
 
             await _repository.Update(exist);
@@ -146,24 +133,3 @@ namespace Dsw2025Tpi.Application.Services
     }
 }
 
-/*
-public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
-        {
-
-            var exist = await _repository.First<Order>(o => o.Date == request.Date);
-            var order = new Order(request.Date, request.ShippingAddress, request.BillingAddress, request.Notes, request.CustomerId);
-            OrderValidator.Validate(request);
-
-            foreach (var item in request.Items)
-            {
-                var prod = await _repository.GetById<Product>(item.ProductId)
-                   ?? throw new InvalidOperationException($"Producto no encontrado: {item.ProductId}");
-                var orderItem = order.AddItem(prod, item.Quantity);
-
-            }
-
-            await _repository.Add(order);
-
-            return new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId);
-        }
- */

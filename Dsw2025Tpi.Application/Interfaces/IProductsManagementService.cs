@@ -8,6 +8,6 @@ namespace Dsw2025Tpi.Application.Interfaces
         Task<IEnumerable<ProductModel.ResponseProductModel>?> GetAllProducts();
         Task<ProductModel.ResponseProductModel> AddProduct(ProductModel.RequestProductModel request);
         Task<ProductModel.ResponseProductModel> UpdateProduct(Guid id, ProductModel.RequestProductModel request);
-        Task<ProductModel.ResponseProductModel> PatchProduct(Guid id);
+        Task PatchProduct(Guid id);
     }
 }

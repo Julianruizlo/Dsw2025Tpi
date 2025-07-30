@@ -32,7 +32,7 @@ public class Product : EntityBase
         set
         {
             if (value <= 0)
-                throw new ArgumentException("El precio debe ser mayor a 0.");
+                throw new ArgumentException("The price must be greater than 0");
             _currentUnitPrice = value;
         }
     }
@@ -43,18 +43,12 @@ public class Product : EntityBase
         set
         {
             if (value < 0)
-                throw new ArgumentException("La cantidad de stock no puede ser negativa.");
+                throw new ArgumentException("The stock quantity can't be negative");
             _stockQuantity = value;
         }
     }
     public bool IsActive { get; set; }
 
-
-
     public ICollection<OrderItem>? Items { get; set; }
 
-    public void Toggle()
-    {
-       IsActive = !IsActive;
-    }
 }

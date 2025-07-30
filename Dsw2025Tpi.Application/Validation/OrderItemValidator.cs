@@ -8,13 +8,13 @@ namespace Dsw2025Tpi.Application.Validation
         public static void Validate(OrderItemModel.RequestOrderItemModel item)
         {
             if (item == null)
-                throw new InvalidOperationException("El ítem de la orden no puede ser nulo.");
+                throw new InvalidOperationException("The order item cannot be null.");
 
             if (item.ProductId == Guid.Empty)
-                throw new InvalidOperationException("El producto es obligatorio.");
+                throw new InvalidOperationException("The product is mandatory.");
 
             if (item.Quantity <= 0)
-                throw new InvalidOperationException("La cantidad debe ser mayor a cero.");
+                throw new InvalidOperationException("The quantity must be greater than zero.");
         }
     }
 }

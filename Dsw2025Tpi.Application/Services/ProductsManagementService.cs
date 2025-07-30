@@ -25,9 +25,9 @@ namespace Dsw2025Tpi.Application.Services
         {
             var product = await _repository.GetById<Product>(id);
             if (product == null)
-                throw new EntityNotFoundException("Producto no encontrado");
+                throw new EntityNotFoundException("Product not found");
             return product != null ?
-                new ProductModel.ResponseProductModel(product.Id, product.Sku,product.InternalCode, product.Name, product.Description, product.CurrentUnitPrice, product.StockQuantity,product.IsActive ) :
+                new ProductModel.ResponseProductModel(product.Id, product.Sku, product.InternalCode, product.Name, product.Description, product.CurrentUnitPrice, product.StockQuantity, product.IsActive) :
                 null;
         }
 
@@ -36,31 +36,28 @@ namespace Dsw2025Tpi.Application.Services
             return (await _repository
                 .GetFiltered<Product>(p => p.IsActive))?
                 .Select(p => new ProductModel.ResponseProductModel(p.Id, p.Sku, p.InternalCode, p.Name, p.Description,
-                p.CurrentUnitPrice, p.StockQuantity,p.IsActive));
+                p.CurrentUnitPrice, p.StockQuantity, p.IsActive));
         }
 
         public async Task<ProductModel.ResponseProductModel> AddProduct(ProductModel.RequestProductModel request)
         {
             ProductValidator.Validate(request);
             var exist = await _repository.First<Product>(p => p.Sku == request.Sku);
-            if (exist != null) throw new DuplicatedEntityException($"Ya existe un producto con el Sku {request.Sku}");
+            if (exist != null) throw new DuplicatedEntityException($"A product with Sku {request.Sku} already exists");
             var product = new Product(request.Sku, request.InternalCode, request.Name, request.Description, request.CurrentUnitPrice, request.StockQuantity);
             await _repository.Add(product);
             return new ProductModel.ResponseProductModel(product.Id, product.Sku, product.InternalCode, product.Name, product.Description,
                 product.CurrentUnitPrice, product.StockQuantity, product.IsActive);
         }
-        //Como actualizar un producto por id y no por sku, en caso de que lo hagamos por sku, habria que arreglar la ultima parte para que no actualice el id cada vez que haya cambios
         public async Task<ProductModel.ResponseProductModel> UpdateProduct(Guid id, ProductModel.RequestProductModel request)
         {
-            
-            
+
+
             var exist = await _repository.GetById<Product>(id);
             if (exist == null)
-                throw new EntityNotFoundException("Producto no encontrado");
+                throw new EntityNotFoundException("Product not found");
             ProductValidator.Validate(request);
 
-
-            // Actualiza solo las propiedades necesarias, el Id no se toca
             exist.Sku = request.Sku;
             exist.InternalCode = request.InternalCode;
             exist.Name = request.Name;
@@ -83,26 +80,19 @@ namespace Dsw2025Tpi.Application.Services
             );
         }
 
-        public async Task<ProductModel.ResponseProductModel> PatchProduct(Guid id)
+        public async Task PatchProduct(Guid id)
         {
             var exist = await _repository.GetById<Product>(id);
             if (exist == null)
-                throw new EntityNotFoundException("Producto no encontrado.");
+                throw new EntityNotFoundException("Product not found");
 
-            exist.IsActive = false; // O alternar: exist.IsActive = !exist.IsActive;
+            exist.IsActive = false; 
             await _repository.Update(exist);
-            var active = await _repository.GetById<Product>(id);
+            var active = await _repository.GetById<Product>(id); 
+        }
 
-            return new ProductModel.ResponseProductModel(
-                exist.Id,
-                exist.Sku,
-                exist.InternalCode,
-                exist.Name,
-                exist.Description,
-                exist.CurrentUnitPrice,
-                exist.StockQuantity,
-                exist.IsActive
-            );
+          
+            
         }
     }
-}
+
