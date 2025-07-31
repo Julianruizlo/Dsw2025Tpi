@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
 
 namespace Dsw2025Tpi.Application.Services
 {
@@ -37,6 +38,7 @@ namespace Dsw2025Tpi.Application.Services
                 .GetFiltered<Product>(p => p.IsActive))?
                 .Select(p => new ProductModel.ResponseProductModel(p.Id, p.Sku, p.InternalCode, p.Name, p.Description,
                 p.CurrentUnitPrice, p.StockQuantity, p.IsActive));
+            
         }
 
         public async Task<ProductModel.ResponseProductModel> AddProduct(ProductModel.RequestProductModel request)
@@ -85,14 +87,12 @@ namespace Dsw2025Tpi.Application.Services
             var exist = await _repository.GetById<Product>(id);
             if (exist == null)
                 throw new EntityNotFoundException("Product not found");
-
+            if (exist.IsActive == false)
+                throw new ApplicationException("The product was already disabled");
             exist.IsActive = false; 
             await _repository.Update(exist);
             var active = await _repository.GetById<Product>(id); 
         }
-
-          
-            
-        }
-    }
+     }
+}
 

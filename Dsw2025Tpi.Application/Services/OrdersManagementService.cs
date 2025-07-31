@@ -27,7 +27,7 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<OrderModel.ResponseOrderModel?> GetOrderById(Guid id)
         {
             var order = await _repository.GetById<Order>(id, nameof(Order.OrderItems), "OrderItems.Product");
-            if(order == null) throw new InvalidOperationException($"Order not found");
+            if(order == null) throw new EntityNotFoundException($"Order not found");
 
             var responseItems = order.OrderItems.Select(i => new OrderItemModel.ResponseOrderItemModel(
                     i.Id,
@@ -46,18 +46,46 @@ namespace Dsw2025Tpi.Application.Services
         {
             OrderStatus? status = null;
             if (!string.IsNullOrWhiteSpace(request.Status))
-                status = Enum.Parse<OrderStatus>(request.Status.ToUpper(), true);
-            var orders = await _repository
-            .GetFiltered<Order>(
+            {
+                if (!Enum.TryParse<OrderStatus>(request.Status, true, out var parsedStatus) ||
+                    !Enum.IsDefined(typeof(OrderStatus), parsedStatus))
+                {
+                    throw new ArgumentException($"Invalid order status: {request.Status}");
+                }
+                status = parsedStatus;
+            }
+
+            if (request.CustomerId.HasValue)
+            {
+                var customer = await _repository.GetById<Customer>(request.CustomerId.Value);
+                if (customer == null)
+                    throw new EntityNotFoundException($"Customer with ID {request.CustomerId} not found.");
+            }
+
+            var orders = await _repository.GetFiltered<Order>(
                 o =>
-                    o.Status != OrderStatus.CANCELLED
-                    && (o.CustomerId == request.CustomerId||request.CustomerId.ToString().IsNullOrEmpty())
-                    && (!status.HasValue||o.Status == status.Value),
-                    
-                 include: new[] { "OrderItems" }
+                    o.Status != OrderStatus.CANCELLED &&
+                    (!request.CustomerId.HasValue || o.CustomerId == request.CustomerId.Value) &&
+                    (!status.HasValue || o.Status == status.Value),
+                include: new[] { "OrderItems" }
             );
-            return orders.Select(order => new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status, order.OrderItems.Select(i => new OrderItemModel.ResponseOrderItemModel(i.Id,
-                i.Quantity, i.UnitPrice, i.OrderId, i.ProductId)).ToList()));
+
+            return orders.Select(order => new OrderModel.ResponseOrderModel(
+                order.Id,
+                order.Date,
+                order.ShippingAddress,
+                order.BillingAddress,
+                order.Notes,
+                order.CustomerId,
+                order.Status,
+                order.OrderItems.Select(i => new OrderItemModel.ResponseOrderItemModel(
+                    i.Id,
+                    i.Quantity,
+                    i.UnitPrice,
+                    i.OrderId,
+                    i.ProductId
+                )).ToList()
+            ));
         }
 
         public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
@@ -67,6 +95,12 @@ namespace Dsw2025Tpi.Application.Services
             if (request.Items == null || !request.Items.Any())
                 throw new ArgumentException("The order must have at least one item.");
 
+            var customer = await _repository.GetById<Customer>(request.CustomerId);
+            if (customer == null)
+                throw new EntityNotFoundException($"Customer with ID {request.CustomerId} not found.");
+
+
+
             var order = new Order(
                 request.Date,
                 request.ShippingAddress,
@@ -75,15 +109,13 @@ namespace Dsw2025Tpi.Application.Services
                 request.CustomerId
             );
 
-            await _repository.Add(order);
-
             var orderItems = new List<OrderItem>();
             decimal totalAmount = 0;
 
             foreach (var item in request.Items)
             {
                 var product = await _repository.GetById<Product>(item.ProductId)
-                    ?? throw new InvalidOperationException($"Product not found: {item.ProductId}");
+                    ?? throw new EntityNotFoundException($"Product not found: {item.ProductId}");
 
                 if (product.StockQuantity < item.Quantity)
                     throw new InvalidOperationException($"Insufficient stock for product: {product.Name}");
@@ -102,6 +134,7 @@ namespace Dsw2025Tpi.Application.Services
             }
 
             order.OrderItems = orderItems;
+            await _repository.Add(order);
             await _repository.Update(order);
 
             var responseItems = orderItems.Select(oi => new OrderItemModel.ResponseOrderItemModel(
@@ -124,23 +157,35 @@ namespace Dsw2025Tpi.Application.Services
             );
         }
 
-        public async Task<OrderModel.ResponseOrderModel> PutOrder(Guid id, OrderModel.RequestOrderModel request)
+        public async Task<OrderModel.ResponseOrderModel> UpdateOrderStatus(Guid id, string newStatus)
         {
-            OrderValidator.Validate(request);
 
-            if (!Enum.IsDefined(typeof(OrderStatus), request.Status))
+            var order = await _repository.GetById<Order>(id, include: new[] { "OrderItems" });
+
+            if (order == null)
+                throw new EntityNotFoundException($"Order with ID: {id} not found");
+
+            if (!Enum.TryParse<OrderStatus>(newStatus, true, out var status) || int.TryParse(newStatus, out _))
+                throw new ArgumentException("The state entered is not valid");
+
+            if (status == OrderStatus.CANCELLED)
             {
-                throw new ArgumentOutOfRangeException("The state entered is not valid.");
+                foreach (var item in order.OrderItems)
+                {
+                    var product = await _repository.GetById<Product>(item.ProductId);
+                    if (product != null)
+                    {
+                        product.StockQuantity += item.Quantity;
+                        await _repository.Update(product);
+                    }
+                }
             }
 
-            var exist = await _repository.GetById<Order>(id);
-            if (exist == null)
-                throw new KeyNotFoundException($"Order with ID: {id} not found");
-            exist.Status = request.Status;
+            order.Status = status;
 
-            await _repository.Update(exist);
+            await _repository.Update(order);
 
-            var responseItems = exist.OrderItems.Select(oi => new OrderItemModel.ResponseOrderItemModel(
+            var responseItems = order.OrderItems.Select(oi => new OrderItemModel.ResponseOrderItemModel(
             oi.Id,
             oi.Quantity,
             oi.UnitPrice,
@@ -148,16 +193,15 @@ namespace Dsw2025Tpi.Application.Services
             oi.ProductId
             )).ToList();
 
-
             return new OrderModel.ResponseOrderModel
            (
-                exist.Id,
-                exist.Date,
-                exist.ShippingAddress,
-                exist.BillingAddress,
-                exist.Notes,
-                exist.CustomerId,
-                exist.Status,
+                order.Id,
+                order.Date,
+                order.ShippingAddress,
+                order.BillingAddress,
+                order.Notes,
+                order.CustomerId,
+                order.Status,
                 responseItems
             );
         }

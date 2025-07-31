@@ -22,95 +22,43 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet()]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAllProducts()
     {
         var products = await _service.GetAllProducts();
-        if (products == null || !products.Any()) return NoContent();
+        if (products == null || !products.Any()) throw new NoContentException("Empty List");
         return Ok(products);
     }
-
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> GetProductById(Guid id)
     {
-        try 
-        {
-            var product = await _service.GetProductById(id);
-            return Ok(product);
-        }
-        catch (EntityNotFoundException nt)
-        {
-            return NotFound(nt.Message);
-        }
-        
+        var product = await _service.GetProductById(id);
+        return Ok(product); 
     }
 
     [HttpPost()]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddProduct([FromBody]ProductModel.RequestProductModel request)
     {
-        try
-        {
-            var product = await _service.AddProduct(request);
-            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product); 
-        }
-        catch (ArgumentException ae)
-        {
-            return BadRequest(ae.Message);
-        }
-        catch(ApplicationException de)
-        {
-            return BadRequest(de.Message);
-        }
-        catch (Exception)
-        {
-            return Problem("An error occurred while saving the product");
-        }
+         var product = await _service.AddProduct(request);
+         return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product); 
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductModel.RequestProductModel request)
     {
-        try
-        {
-            var updatedProduct = await _service.UpdateProduct(id, request);
-            return Ok(updatedProduct);
-        }
-        catch (EntityNotFoundException ex) 
-        {
-            return NotFound(ex.Message); 
-        }
-        catch (BadRequestException ae)
-        {
-            return BadRequest(ae.Message); 
-        }
-        catch (Exception)
-        {
-            return Problem("An error occurred while saving the product"); 
-        }
+        var updatedProduct = await _service.UpdateProduct(id, request);
+        return Ok(updatedProduct);
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PatchProduct(Guid id)
     {
-        try
-        {
-            await _service.PatchProduct(id);
-            return NoContent();
-        }
-        catch (ArgumentException ae)
-        {
-            return BadRequest(ae.Message);
-        }
-        catch (ApplicationException de)
-        {
-            return NotFound(de.Message);
-        }
-        catch (Exception)
-        {
-            return Problem("An error occurred while saving the product");
-        }
-
+        await _service.PatchProduct(id);
+        return NoContent();
     }
 }

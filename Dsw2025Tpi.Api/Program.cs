@@ -3,6 +3,7 @@ using Dsw2025Tpi.Api.DependencyInjection;
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,12 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(o =>
         {
@@ -64,7 +70,7 @@ public class Program
          
         builder.Services.AddDomainServices(builder.Configuration);
         builder.Services.AddDbContext<AuthenticateContext>(options => {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025Ej15Entities"));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025Tpi"));
         });
         builder.Services.AddSingleton<JwtTokenService>();
         var jwtConfig = builder.Configuration.GetSection("Jwt");
@@ -101,6 +107,7 @@ public class Program
             });
         });
 
+        builder.Services.AddTransient<CustomExceptionHandlingMiddleware>();
 
         var app = builder.Build();
 
@@ -136,6 +143,8 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.UseMiddleware<CustomExceptionHandlingMiddleware>();
 
         app.MapControllers();
         app.MapHealthChecks("/healthcheck");

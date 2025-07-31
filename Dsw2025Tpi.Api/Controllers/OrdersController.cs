@@ -1,14 +1,16 @@
 ﻿using Azure.Core;
 using Dsw2025Tpi.Application.Dtos;
+using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
 
 namespace Dsw2025Tpi.Api.Controllers;
 
 [ApiController]
 [Route("api/orders")]
+[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly IOrdersManagementService _service;
@@ -19,81 +21,37 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet()]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAllOrders([FromQuery] OrderModel.SearchOrder request)
     {
         var orders = await _service.GetAllOrders(request);
-        if (orders == null || !orders.Any()) return NoContent();
+        if (orders == null || !orders.Any()) throw new NoContentException("Empty List");
         return Ok(orders);
     }
 
     [HttpPost]
-
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddOrder([FromBody] OrderModel.RequestOrderModel request)
     {
-        try
-        {
-            var orders = await _service.AddOrder(request);
-            return CreatedAtAction(nameof(GetOrderById), new { id = orders.Id }, orders);
-        }
-        catch (ArgumentException ae)
-        {
-            return BadRequest(ae.Message);
-        }
-        catch (InvalidOperationException ioe)
-        {
-            return BadRequest(ioe.Message);
-        }
-        catch (ApplicationException de)
-        {
-            return Conflict(de.Message);
-        }
-        catch (Exception)
-        {
-            return Problem("An error occurred while saving the order.");
-        }
+        var orders = await _service.AddOrder(request);
+        return CreatedAtAction(nameof(GetOrderById), new { id = orders.Id }, orders);
     }
 
-
+    [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOrderById(Guid id)
-    {
-        try
-        {
-            var order = await _service.GetOrderById(id);
-            return Ok(order);
-        }
-        catch (InvalidOperationException ioe)
-        {
-            return NotFound(ioe.Message);
-        }
-        
+    {    
+        var order = await _service.GetOrderById(id);
+        return Ok(order);  
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] OrderModel.RequestOrderModel request)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromQuery] string newStatus)
     {
-        try
-        {
-            var updatedOrder = await _service.PutOrder(id, request);
-            if (updatedOrder == null) return NotFound();
-            return Ok(updatedOrder);
-        }
-        catch (ArgumentException ae)
-        {
-            return BadRequest(ae.Message);
-        }
-        catch (KeyNotFoundException knf)
-        {
-            return NotFound(knf.Message);
-        }
-        catch (ApplicationException de)
-        {
-            return Conflict(de.Message);
-        }
-        catch (Exception)
-        {
-            return Problem("An error occurred while changing the order status.");
-        }
+        var updatedOrder = await _service.UpdateOrderStatus(id, newStatus);
+        if (updatedOrder == null) throw new EntityNotFoundException("Order not found");
+        return Ok(updatedOrder);
     }
 }
 
