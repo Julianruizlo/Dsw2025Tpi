@@ -8,10 +8,10 @@ namespace Dsw2025Tpi.Domain.Entities;
 
 public class Order: EntityBase
 {
-    public Order(DateTime date, string? shippingAddress, string? billingAddress, string? notes, Guid customerId)
+    public Order(string? shippingAddress, string? billingAddress, string? notes, Guid customerId)
     {
         CustomerId = customerId;
-        Date = date;
+        Date = DateTime.Now;
         ShippingAddress = shippingAddress;
         BillingAddress = billingAddress;
         Notes = notes;

@@ -105,7 +105,6 @@ namespace Dsw2025Tpi.Application.Services
 
 
             var order = new Order(
-                request.Date,
                 request.ShippingAddress,
                 request.BillingAddress,
                 request.Notes,
