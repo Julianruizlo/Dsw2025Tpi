@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dsw2025Ej15.Application.Services;
+namespace Dsw2025Tpi.Application.Services;
 
 public class JwtTokenService
 {

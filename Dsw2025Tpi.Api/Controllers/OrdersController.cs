@@ -19,9 +19,9 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet()]
-    public async Task<IActionResult> GetAllOrders()
+    public async Task<IActionResult> GetAllOrders([FromQuery] OrderModel.SearchOrder request)
     {
-        var orders = await _service.GetAllOrders();
+        var orders = await _service.GetAllOrders(request);
         if (orders == null || !orders.Any()) return NoContent();
         return Ok(orders);
     }

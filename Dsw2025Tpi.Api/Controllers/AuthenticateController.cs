@@ -1,12 +1,12 @@
-﻿using Dsw2025Ej15.Application.Dtos;
-using Dsw2025Ej15.Application.Services;
+﻿using Dsw2025Tpi.Application.Dtos;
+using Dsw2025Tpi.Application.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Dsw2025Tpi.Application.Exceptions;
 
-namespace Dsw2025Ej15.Api.Controllers;
+namespace Dsw2025Tpi.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]

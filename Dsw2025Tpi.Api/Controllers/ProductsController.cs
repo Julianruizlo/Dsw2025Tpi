@@ -32,7 +32,7 @@ public class ProductsController : ControllerBase
 
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> GetProductById(Guid id)
     {
         try 

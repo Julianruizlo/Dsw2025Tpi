@@ -6,6 +6,7 @@ using Dsw2025Tpi.Application.Validation;
 using Dsw2025Tpi.Data.Repositories;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,17 +28,36 @@ namespace Dsw2025Tpi.Application.Services
         {
             var order = await _repository.GetById<Order>(id, nameof(Order.OrderItems), "OrderItems.Product");
             if(order == null) throw new InvalidOperationException($"Order not found");
+
+            var responseItems = order.OrderItems.Select(i => new OrderItemModel.ResponseOrderItemModel(
+                    i.Id,
+                    i.Quantity,
+                    i.UnitPrice,
+                    i.OrderId,
+                    i.ProductId
+                )).ToList();
+
             return order != null ?
-                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status) :
+                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status, responseItems) :
                 null;
         }
 
-        public async Task<IEnumerable<OrderModel.ResponseOrderModel>?> GetAllOrders()
+        public async Task<IEnumerable<OrderModel.ResponseOrderModel>?> GetAllOrders(OrderModel.SearchOrder request)
         {
-            return (await _repository
-                .GetAll<Order>())?
-                .Select(o => new OrderModel.ResponseOrderModel(o.Id, o.Date, o.ShippingAddress, o.BillingAddress, o.Notes,
-                o.CustomerId,o.Status));
+            OrderStatus? status = null;
+            if (!string.IsNullOrWhiteSpace(request.Status))
+                status = Enum.Parse<OrderStatus>(request.Status.ToUpper(), true);
+            var orders = await _repository
+            .GetFiltered<Order>(
+                o =>
+                    o.Status != OrderStatus.CANCELLED
+                    && (o.CustomerId == request.CustomerId||request.CustomerId.ToString().IsNullOrEmpty())
+                    && (!status.HasValue||o.Status == status.Value),
+                    
+                 include: new[] { "OrderItems" }
+            );
+            return orders.Select(order => new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status, order.OrderItems.Select(i => new OrderItemModel.ResponseOrderItemModel(i.Id,
+                i.Quantity, i.UnitPrice, i.OrderId, i.ProductId)).ToList()));
         }
 
         public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
@@ -99,7 +119,8 @@ namespace Dsw2025Tpi.Application.Services
                 order.BillingAddress,
                 order.Notes,
                 order.CustomerId,
-                order.Status
+                order.Status,
+                responseItems
             );
         }
 
@@ -119,6 +140,15 @@ namespace Dsw2025Tpi.Application.Services
 
             await _repository.Update(exist);
 
+            var responseItems = exist.OrderItems.Select(oi => new OrderItemModel.ResponseOrderItemModel(
+            oi.Id,
+            oi.Quantity,
+            oi.UnitPrice,
+            oi.OrderId,
+            oi.ProductId
+            )).ToList();
+
+
             return new OrderModel.ResponseOrderModel
            (
                 exist.Id,
@@ -127,7 +157,8 @@ namespace Dsw2025Tpi.Application.Services
                 exist.BillingAddress,
                 exist.Notes,
                 exist.CustomerId,
-                exist.Status
+                exist.Status,
+                responseItems
             );
         }
     }

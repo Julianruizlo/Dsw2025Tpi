@@ -1,4 +1,4 @@
-using Dsw2025Ej15.Application.Services;
+using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Api.DependencyInjection;
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Helpers;
@@ -91,6 +91,17 @@ public class Program
             };
         });
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("PermitirFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:3000")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
+
+
         var app = builder.Build();
 
         var rolesToCreate = builder.Configuration.GetSection("Roles").Get<List<string>>();
@@ -121,6 +132,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseCors("PermitirFrontend");
 
         app.UseAuthentication();
         app.UseAuthorization();
