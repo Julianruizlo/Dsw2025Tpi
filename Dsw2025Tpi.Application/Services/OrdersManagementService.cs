@@ -34,11 +34,12 @@ namespace Dsw2025Tpi.Application.Services
                     i.Quantity,
                     i.UnitPrice,
                     i.OrderId,
-                    i.ProductId
+                    i.ProductId,
+                    i.Subtotal
                 )).ToList();
 
             return order != null ?
-                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status, responseItems) :
+                new OrderModel.ResponseOrderModel(order.Id, order.Date, order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId, order.Status, order.TotalAmount, responseItems) :
                 null;
         }
 
@@ -78,12 +79,14 @@ namespace Dsw2025Tpi.Application.Services
                 order.Notes,
                 order.CustomerId,
                 order.Status,
+                order.TotalAmount,
                 order.OrderItems.Select(i => new OrderItemModel.ResponseOrderItemModel(
                     i.Id,
                     i.Quantity,
                     i.UnitPrice,
                     i.OrderId,
-                    i.ProductId
+                    i.ProductId,
+                    i.Subtotal
                 )).ToList()
             ));
         }
@@ -130,7 +133,6 @@ namespace Dsw2025Tpi.Application.Services
                     product.Id
                 );
                 orderItems.Add(orderItem);
-                totalAmount += product.CurrentUnitPrice * item.Quantity;
             }
 
             order.OrderItems = orderItems;
@@ -142,7 +144,8 @@ namespace Dsw2025Tpi.Application.Services
                 oi.Quantity,
                 oi.UnitPrice,
                 oi.OrderId,
-                oi.ProductId
+                oi.ProductId,
+                oi.Subtotal
             )).ToList();
 
             return new OrderModel.ResponseOrderModel(
@@ -153,6 +156,7 @@ namespace Dsw2025Tpi.Application.Services
                 order.Notes,
                 order.CustomerId,
                 order.Status,
+                order.TotalAmount,
                 responseItems
             );
         }
@@ -190,7 +194,8 @@ namespace Dsw2025Tpi.Application.Services
             oi.Quantity,
             oi.UnitPrice,
             oi.OrderId,
-            oi.ProductId
+            oi.ProductId,
+            oi.Subtotal
             )).ToList();
 
             return new OrderModel.ResponseOrderModel
@@ -202,6 +207,7 @@ namespace Dsw2025Tpi.Application.Services
                 order.Notes,
                 order.CustomerId,
                 order.Status,
+                order.TotalAmount,
                 responseItems
             );
         }
