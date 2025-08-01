@@ -1,15 +1,16 @@
-using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Api.DependencyInjection;
+using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Helpers;
+using Dsw2025Tpi.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 
 
 namespace Dsw2025Tpi.Api;
@@ -117,7 +118,9 @@ public class Program
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
             //dbContext.Database.Migrate();  
-            dbContext.SeedDatabase();      
+            dbContext.Seedwork<Product>("Data/Seed/products.json");
+            dbContext.Seedwork<Customer>("Data/Seed/customers.json");
+            dbContext.Seedwork<Order>("Data/Seed/orders.json");
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             foreach (var roleName in rolesToCreate!)

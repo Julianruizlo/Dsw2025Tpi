@@ -39,5 +39,13 @@
         "description": "Descripción de un producto de temporada.",
         "currentUnitPrice": 89.99,
         "stockQuantity": 100
+    },
+    {
+        "sku": "FDD234",
+        "internalCode": "FDD-234",
+        "name": "FDD Prime",
+        "description": "Perfume de Nicho Elixir",
+        "currentUnitPrice": 999999.99,
+        "stockQuantity": 3
     }
 ]
