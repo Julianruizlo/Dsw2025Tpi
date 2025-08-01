@@ -31,8 +31,8 @@ public class Program
         {
             o.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Desarrollo de Software",
-                Version = "v1",
+                Title = "Desarrollo de Software - Dsw2025TPI - FLJ",
+                Version = "v4",
             });
             o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
@@ -113,8 +113,6 @@ public class Program
 
         var rolesToCreate = builder.Configuration.GetSection("Roles").Get<List<string>>();
 
-
-        
         using (var scope = app.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();

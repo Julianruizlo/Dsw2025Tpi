@@ -24,6 +24,7 @@ public class CustomExceptionHandlingMiddleware : IMiddleware
                 ApplicationException => HttpStatusCode.BadRequest,
                 ArgumentException => HttpStatusCode.BadRequest,
                 InvalidOperationException => HttpStatusCode.BadRequest,
+                UnauthorizedException => HttpStatusCode.Unauthorized,
                 _ => HttpStatusCode.InternalServerError
                 
             };

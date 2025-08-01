@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
 
 namespace Dsw2025Tpi.Api.Controllers;
 
@@ -33,16 +34,16 @@ public class AuthenticateController : ControllerBase
     {
         var user =  await _userManager.FindByNameAsync(request.Username);
         if (user == null) {
-            return Unauthorized("Incorrect username or password");
+            throw new UnauthorizedException("Incorrect username or password");
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
         if (!result.Succeeded)
         {
-            return Unauthorized("Incorrect username or password");
+            throw new UnauthorizedException("Incorrect username or password");
         }
         var roles = await _userManager.GetRolesAsync(user);
-        var role = roles.FirstOrDefault() ?? throw new Dsw2025Tpi.Application.Exceptions.ApplicationException("User has not assigned role");
+        var role = roles.FirstOrDefault() ?? throw new ApplicationException("User has not assigned role");
         
         var token = _jwtTokenService.GenerateToken(request.Username, role);
         return Ok(new { token });

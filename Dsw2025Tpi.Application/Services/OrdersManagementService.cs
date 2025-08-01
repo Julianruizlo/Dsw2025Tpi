@@ -49,7 +49,8 @@ namespace Dsw2025Tpi.Application.Services
             if (!string.IsNullOrWhiteSpace(request.Status))
             {
                 if (!Enum.TryParse<OrderStatus>(request.Status, true, out var parsedStatus) ||
-                    !Enum.IsDefined(typeof(OrderStatus), parsedStatus))
+                !Enum.IsDefined(typeof(OrderStatus), parsedStatus) ||
+                int.TryParse(request.Status, out _)) 
                 {
                     throw new ArgumentException($"Invalid order status: {request.Status}");
                 }
@@ -102,8 +103,6 @@ namespace Dsw2025Tpi.Application.Services
             if (customer == null)
                 throw new EntityNotFoundException($"Customer with ID {request.CustomerId} not found.");
 
-
-
             var order = new Order(
                 request.ShippingAddress,
                 request.BillingAddress,
@@ -112,8 +111,7 @@ namespace Dsw2025Tpi.Application.Services
             );
 
             var orderItems = new List<OrderItem>();
-            decimal totalAmount = 0;
-
+            
             foreach (var item in request.Items)
             {
                 var product = await _repository.GetById<Product>(item.ProductId)
@@ -136,7 +134,6 @@ namespace Dsw2025Tpi.Application.Services
 
             order.OrderItems = orderItems;
             await _repository.Add(order);
-            await _repository.Update(order);
 
             var responseItems = orderItems.Select(oi => new OrderItemModel.ResponseOrderItemModel(
                 oi.Id,
@@ -162,8 +159,7 @@ namespace Dsw2025Tpi.Application.Services
 
         public async Task<OrderModel.ResponseOrderModel> UpdateOrderStatus(Guid id, string newStatus)
         {
-
-            var order = await _repository.GetById<Order>(id, include: new[] { "OrderItems" });
+            var order = await _repository.GetById<Order>(id, nameof(Order.OrderItems), "OrderItems.Product");
 
             if (order == null)
                 throw new EntityNotFoundException($"Order with ID: {id} not found");

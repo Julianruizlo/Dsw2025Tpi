@@ -53,12 +53,14 @@ namespace Dsw2025Tpi.Application.Services
         }
         public async Task<ProductModel.ResponseProductModel> UpdateProduct(Guid id, ProductModel.RequestProductModel request)
         {
-
-
             var exist = await _repository.GetById<Product>(id);
             if (exist == null)
                 throw new EntityNotFoundException("Product not found");
+
             ProductValidator.Validate(request);
+
+            var sku = await _repository.First<Product>(p => p.Sku == request.Sku);
+            if (sku != null) throw new DuplicatedEntityException($"A product with Sku {request.Sku} already exists");
 
             exist.Sku = request.Sku;
             exist.InternalCode = request.InternalCode;
@@ -91,7 +93,6 @@ namespace Dsw2025Tpi.Application.Services
                 throw new ApplicationException("The product was already disabled");
             exist.IsActive = false; 
             await _repository.Update(exist);
-            var active = await _repository.GetById<Product>(id); 
         }
      }
 }
