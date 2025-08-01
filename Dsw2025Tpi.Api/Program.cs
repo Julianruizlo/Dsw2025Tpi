@@ -32,7 +32,7 @@ public class Program
         {
             o.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Desarrollo de Software - Dsw2025TPI - FLJ",
+                Title = "Dsw2025TPI - FLJ",
                 Version = "v4",
             });
             o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -118,9 +118,12 @@ public class Program
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
             dbContext.Database.Migrate();
+            var authContext = scope.ServiceProvider.GetRequiredService<AuthenticateContext>();
+            authContext.Database.Migrate();
             dbContext.Seedwork<Product>("Sources/products.json");
             dbContext.Seedwork<Customer>("Sources/customers.json");
             dbContext.Seedwork<Order>("Sources/orders.json");
+
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             foreach (var roleName in rolesToCreate!)
@@ -130,6 +133,27 @@ public class Program
                     await roleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
+
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var adminSection = builder.Configuration.GetSection("DefaultAdminUser");
+
+            var adminUser = await userManager.FindByNameAsync(adminSection["UserName"]);
+            if (adminUser == null)
+            {
+                var newUser = new IdentityUser
+                {
+                    UserName = adminSection["UserName"],
+                    Email = adminSection["Email"],
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(newUser, adminSection["Password"]);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newUser, adminSection["Role"]);
+                }
+            }
+
         }
 
         if (app.Environment.IsDevelopment())

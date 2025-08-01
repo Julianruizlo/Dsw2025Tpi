@@ -69,10 +69,15 @@ namespace Dsw2025Tpi.Application.Services
                     o.Status != OrderStatus.CANCELLED &&
                     (!request.CustomerId.HasValue || o.CustomerId == request.CustomerId.Value) &&
                     (!status.HasValue || o.Status == status.Value),
-                include: new[] { "OrderItems" }
+                include: new[] { "OrderItems.Product" }
             );
 
-            return orders.Select(order => new OrderModel.ResponseOrderModel(
+            if (request.PageNumber <= 0) throw new ArgumentException("Page number must be greater than zero.");
+
+            if (request.PageSize <= 0) throw new ArgumentException("Page size must be greater than zero.");
+
+            var paginatedOrders = orders.Select(
+                order => new OrderModel.ResponseOrderModel(
                 order.Id,
                 order.Date,
                 order.ShippingAddress,
@@ -89,7 +94,12 @@ namespace Dsw2025Tpi.Application.Services
                     i.ProductId,
                     i.Subtotal
                 )).ToList()
-            ));
+            ))
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                ;
+
+            return paginatedOrders;
         }
 
         public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)

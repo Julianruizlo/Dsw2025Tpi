@@ -1,20 +1,50 @@
 [
-    {
-        "id": "c9d8e726-5a4b-3c2c-1e0f-9a8b7c6d5e2f",
-        "customerId": "a91aebad-c9ed-43a6-8e41-4b29a1d71dd1",
-        "shippingAddress": "Calle Falsa 123",
-        "billingAddress": "Calle Verdadera 456",
-        "date": "2024-06-01T10:00:00Z",
-        "totalAmount": 12587.2,
-        "status": 0
-    },
-    {
-        "id": "c8d8e726-5a4c-3c2c-1e0f-9a8b7c6d5e2a",
-        "customerId": "3183ec6d-b49e-4cc8-bf49-6a016851e977",
-        "shippingAddress": "Av. Siempre Viva 742",
-        "billingAddress": "Av. Siempre Viva 742",
-        "date": "2024-06-02T15:30:00Z",
-        "totalAmount": 2761.6,
-        "status": 0
-    }
+  {
+    "shippingAddress": "Av. San Martín 1234",
+    "billingAddress": "Av. San Martín 1234",
+    "notes": "Entregar después de las 17hs",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed2",
+    "orderItems": [
+      {
+        "quantity": 2,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089caa"
+      }
+    ]
+  },
+  {
+    "shippingAddress": "Calle Florida 789",
+    "billingAddress": "Av. Corrientes 456",
+    "notes": "Regalo - incluir tarjeta de felicitación",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed4",
+    "orderItems": [
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cab"
+      },
+      {
+        "quantity": 3,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cac"
+      }
+    ]
+  },
+  {
+    "shippingAddress": "Av. Libertador 5678",
+    "billingAddress": "Av. Libertador 5678",
+    "notes": "Factura A requerida",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed5",
+    "orderItems": [
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cad"
+      },
+      {
+        "quantity": 2,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cae"
+      },
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089caf"
+      }
+    ]
+  }
 ]

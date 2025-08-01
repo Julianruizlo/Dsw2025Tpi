@@ -25,7 +25,7 @@ public class OrderItem: EntityBase
         {
             if (value < 0)
             {
-                throw new ArgumentOutOfRangeException("The quantity must be greater than 0");
+                throw new ArgumentOutOfRangeException("The quantity must be greater than or equal to 0");
             }
             _quantity = value;
         }
