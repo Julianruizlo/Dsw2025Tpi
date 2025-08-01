@@ -47,7 +47,7 @@ public class OrdersController : ControllerBase
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromQuery] string newStatus)
+    public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] string newStatus)
     {
         var updatedOrder = await _service.UpdateOrderStatus(id, newStatus);
         if (updatedOrder == null) throw new EntityNotFoundException("Order not found");

@@ -37,6 +37,5 @@ public static class DbContextExtensions
             }
             context.SaveChanges();
         }
-
     }
 }

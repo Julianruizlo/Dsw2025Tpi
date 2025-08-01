@@ -28,21 +28,21 @@ public class Program
             });
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(o =>
+        builder.Services.AddSwaggerGen(options =>
         {
-            o.SwaggerDoc("v1", new OpenApiInfo
+            options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "Dsw2025TPI - FLJ",
                 Version = "v4",
             });
-            o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
                 Name = "Authorization",
                 Description = "Ingresar el token",
                 Type = SecuritySchemeType.ApiKey
             });
-            o.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme

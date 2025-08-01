@@ -96,8 +96,7 @@ namespace Dsw2025Tpi.Application.Services
                 )).ToList()
             ))
                 .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                ;
+                .Take(request.PageSize);
 
             return paginatedOrders;
         }
