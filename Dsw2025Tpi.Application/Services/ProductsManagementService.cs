@@ -38,7 +38,6 @@ namespace Dsw2025Tpi.Application.Services
                 .GetFiltered<Product>(p => p.IsActive))?
                 .Select(p => new ProductModel.ResponseProductModel(p.Id, p.Sku, p.InternalCode, p.Name, p.Description,
                 p.CurrentUnitPrice, p.StockQuantity, p.IsActive));
-            
         }
 
         public async Task<ProductModel.ResponseProductModel> AddProduct(ProductModel.RequestProductModel request)

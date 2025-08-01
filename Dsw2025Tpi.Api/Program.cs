@@ -118,6 +118,8 @@ public class Program
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
             dbContext.Database.Migrate();
+            var authContext = scope.ServiceProvider.GetRequiredService<AuthenticateContext>();
+            authContext.Database.Migrate();
             dbContext.Seedwork<Product>("Sources/products.json");
             dbContext.Seedwork<Customer>("Sources/customers.json");
             dbContext.Seedwork<Order>("Sources/orders.json");
