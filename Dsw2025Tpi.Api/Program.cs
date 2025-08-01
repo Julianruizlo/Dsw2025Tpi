@@ -117,10 +117,10 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
-            //dbContext.Database.Migrate();  
-            dbContext.Seedwork<Product>("Data/Seed/products.json");
-            dbContext.Seedwork<Customer>("Data/Seed/customers.json");
-            dbContext.Seedwork<Order>("Data/Seed/orders.json");
+            dbContext.Database.Migrate();
+            dbContext.Seedwork<Product>("Sources/products.json");
+            dbContext.Seedwork<Customer>("Sources/customers.json");
+            dbContext.Seedwork<Order>("Sources/orders.json");
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             foreach (var roleName in rolesToCreate!)
