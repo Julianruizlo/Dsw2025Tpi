@@ -2,9 +2,11 @@
 using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Interfaces;
+using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Dsw2025Tpi.Application.Dtos.OrderModel;
 
 namespace Dsw2025Tpi.Api.Controllers;
 
@@ -53,5 +55,7 @@ public class OrdersController : ControllerBase
         if (updatedOrder == null) throw new EntityNotFoundException("Order not found");
         return Ok(updatedOrder);
     }
+
+
 }
 

@@ -63,6 +63,10 @@ namespace Dsw2025Tpi.Application.Services
                 if (customer == null)
                     throw new EntityNotFoundException($"Customer with ID {request.CustomerId} not found.");
             }
+            
+            if (request.PageNumber <= 0) throw new ArgumentException("Page number must be greater than zero.");
+
+            if (request.PageSize <= 0) throw new ArgumentException("Page size must be greater than zero.");
 
             var orders = await _repository.GetFiltered<Order>(
                 o =>
@@ -72,7 +76,8 @@ namespace Dsw2025Tpi.Application.Services
                 include: new[] { "OrderItems" }
             );
 
-            return orders.Select(order => new OrderModel.ResponseOrderModel(
+            var paginatedOrders = orders.Select(
+                order => new OrderModel.ResponseOrderModel(
                 order.Id,
                 order.Date,
                 order.ShippingAddress,
@@ -89,9 +94,13 @@ namespace Dsw2025Tpi.Application.Services
                     i.ProductId,
                     i.Subtotal
                 )).ToList()
-            ));
-        }
+            ))
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize);
 
+            return paginatedOrders;
+        }
+        
         public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
         {
             OrderValidator.Validate(request);

@@ -6,6 +6,7 @@ using Dsw2025Tpi.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
@@ -28,21 +29,21 @@ public class Program
             });
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(o =>
+        builder.Services.AddSwaggerGen(options =>
         {
-            o.SwaggerDoc("v1", new OpenApiInfo
+            options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "Desarrollo de Software - Dsw2025TPI - FLJ",
                 Version = "v4",
             });
-            o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
                 Name = "Authorization",
                 Description = "Ingresar el token",
                 Type = SecuritySchemeType.ApiKey
             });
-            o.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
@@ -118,11 +119,15 @@ public class Program
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
             dbContext.Database.Migrate();
+            
             var authContext = scope.ServiceProvider.GetRequiredService<AuthenticateContext>();
             authContext.Database.Migrate();
+            
+            
             dbContext.Seedwork<Product>("Sources/products.json");
             dbContext.Seedwork<Customer>("Sources/customers.json");
             dbContext.Seedwork<Order>("Sources/orders.json");
+
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             foreach (var roleName in rolesToCreate!)
@@ -130,6 +135,26 @@ public class Program
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {
                     await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var adminSection = builder.Configuration.GetSection("DefaultAdminUser");
+
+            var adminUser = await userManager.FindByNameAsync(adminSection["UserName"]);
+            if (adminUser == null)
+            {
+                var newUser = new IdentityUser
+                {
+                    UserName = adminSection["UserName"],
+                    Email = adminSection["Email"],
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(newUser, adminSection["Password"]);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newUser, adminSection["Role"]);
                 }
             }
         }
