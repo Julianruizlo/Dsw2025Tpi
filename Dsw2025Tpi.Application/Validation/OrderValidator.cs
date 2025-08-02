@@ -19,7 +19,7 @@ namespace Dsw2025Tpi.Application.Validation
             if (string.IsNullOrWhiteSpace(request.BillingAddress) || request.BillingAddress.Length > 256)
                 throw new InvalidOperationException("The billing address is required and cannot exceed 256 characters.");
 
-            if (request.Items == null || request.Items.Count == 0)
+            if (request.OrderItems == null || request.OrderItems.Count == 0)
                 throw new InvalidOperationException("You must include at least one item in the order.");
         }
     }

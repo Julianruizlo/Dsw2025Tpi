@@ -10,7 +10,6 @@ namespace Dsw2025Tpi.Api.Controllers;
 
 [ApiController]
 [Route("api/orders")]
-[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly IOrdersManagementService _service;

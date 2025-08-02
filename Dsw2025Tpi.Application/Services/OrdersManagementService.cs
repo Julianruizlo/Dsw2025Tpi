@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApplicationException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
 
 namespace Dsw2025Tpi.Application.Services
 {
@@ -105,7 +106,7 @@ namespace Dsw2025Tpi.Application.Services
         {
             OrderValidator.Validate(request);
 
-            if (request.Items == null || !request.Items.Any())
+            if (request.OrderItems == null || !request.OrderItems.Any())
                 throw new ArgumentException("The order must have at least one item.");
 
             var customer = await _repository.GetById<Customer>(request.CustomerId);
@@ -121,10 +122,12 @@ namespace Dsw2025Tpi.Application.Services
 
             var orderItems = new List<OrderItem>();
             
-            foreach (var item in request.Items)
+            foreach (var item in request.OrderItems)
             {
                 var product = await _repository.GetById<Product>(item.ProductId)
                     ?? throw new EntityNotFoundException($"Product not found: {item.ProductId}");
+                if (!product.IsActive)
+                    throw new ApplicationException("The product is disable");
 
                 if (product.StockQuantity < item.Quantity)
                     throw new InvalidOperationException($"Insufficient stock for product: {product.Name}");

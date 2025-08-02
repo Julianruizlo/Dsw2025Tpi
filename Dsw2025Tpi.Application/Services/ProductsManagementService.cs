@@ -27,6 +27,8 @@ namespace Dsw2025Tpi.Application.Services
             var product = await _repository.GetById<Product>(id);
             if (product == null)
                 throw new EntityNotFoundException("Product not found");
+            if (!product.IsActive)
+                throw new ApplicationException("The product is not active");
             return product != null ?
                 new ProductModel.ResponseProductModel(product.Id, product.Sku, product.InternalCode, product.Name, product.Description, product.CurrentUnitPrice, product.StockQuantity, product.IsActive) :
                 null;
