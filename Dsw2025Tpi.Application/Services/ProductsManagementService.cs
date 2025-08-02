@@ -59,8 +59,8 @@ namespace Dsw2025Tpi.Application.Services
 
             ProductValidator.Validate(request);
 
-            var sku = await _repository.First<Product>(p => p.Sku == request.Sku);
-            if (sku != null) throw new DuplicatedEntityException($"A product with Sku {request.Sku} already exists");
+            var sku = await _repository.First<Product>(p => p.Sku == request.Sku && p.IsActive);
+            if (sku != null ) throw new DuplicatedEntityException($"A product with Sku {request.Sku} already exists");
 
             exist.Sku = request.Sku;
             exist.InternalCode = request.InternalCode;

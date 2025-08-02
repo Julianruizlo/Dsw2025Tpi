@@ -30,15 +30,16 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<IActionResult> AddOrder([FromBody] OrderModel.RequestOrderModel request)
     {
         var orders = await _service.AddOrder(request);
         return CreatedAtAction(nameof(GetOrderById), new { id = orders.Id }, orders);
     }
 
-    [Authorize(Roles = "Admin")]
+    
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetOrderById(Guid id)
     {    
         var order = await _service.GetOrderById(id);
